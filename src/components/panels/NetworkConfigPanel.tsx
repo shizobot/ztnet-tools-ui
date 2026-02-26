@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
@@ -27,7 +27,7 @@ export function NetworkConfigPanel() {
   });
   const store = useAppStore();
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const cfg = await loadNetworkConfig(nwid);
     if (!cfg) return;
     setSelectedNwid(cfg.selectedNwid);
@@ -44,11 +44,11 @@ export function NetworkConfigPanel() {
     setDescription((cfg.raw.description as string) || (cfg.raw.desc as string) || '');
     setIsPrivate(cfg.raw.private !== false);
     setV6State({ ...INITIAL_V6_STATE, ...(cfg.raw.v6AssignMode || {}) });
-  };
+  }, [loadNetworkConfig, nwid, setNetworkConfig, setSelectedNwid]);
 
   useEffect(() => {
     void load();
-  }, [nwid]);
+  }, [load]);
 
   return (
     <section className="panel" id="panel-network-config">
@@ -59,10 +59,14 @@ export function NetworkConfigPanel() {
         </div>
       </div>
       <div className="card">
-        <label>Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
-        <label>Description</label>
-        <input value={description} onChange={(e) => setDescription(e.target.value)} />
+        <label htmlFor="networkName">Name</label>
+        <input id="networkName" value={name} onChange={(e) => setName(e.target.value)} />
+        <label htmlFor="networkDescription">Description</label>
+        <input
+          id="networkDescription"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
         <Toggle checked={isPrivate} onChange={setIsPrivate} label="Private" />
         <Toggle
           checked={v6State.zt}

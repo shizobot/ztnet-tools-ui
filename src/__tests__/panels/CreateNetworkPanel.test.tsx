@@ -18,7 +18,9 @@ describe('CreateNetworkPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '⊛ Fill Defaults' }));
 
-    const payload = screen.getByText((content) => content.includes('192.168.192.1') && content.includes('my-network'));
+    const payload = screen.getByText(
+      (content) => content.includes('192.168.192.1') && content.includes('my-network'),
+    );
 
     expect(payload).toBeDefined();
   });

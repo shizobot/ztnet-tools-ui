@@ -56,7 +56,9 @@ describe('testConnection', () => {
   it('saves prefs and refreshes dashboard on successful status check', async () => {
     localStorage.clear();
     const refreshDashboard = vi.fn();
-    const apiGet = vi.fn().mockResolvedValue({ ok: true, status: 200, data: { address: 'abc123' } });
+    const apiGet = vi
+      .fn()
+      .mockResolvedValue({ ok: true, status: 200, data: { address: 'abc123' } });
 
     const result = await testConnection(
       { host: 'http://localhost:9993', token: 'secret', persistToken: true },

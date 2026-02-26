@@ -6,7 +6,13 @@ export function Header() {
 
   return (
     <header>
-      <button id="menuBtn" className="menu-btn" type="button" onClick={toggleSidebar} aria-label="Menu" />
+      <button
+        id="menuBtn"
+        className="menu-btn"
+        type="button"
+        onClick={toggleSidebar}
+        aria-label="Menu"
+      />
       <button type="button" onClick={() => navigate('/')}>
         ZTNet Tools UI
       </button>

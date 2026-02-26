@@ -1,9 +1,4 @@
 {
   "editor.formatOnSave": true,
-  "eslint.validate": [
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    "typescriptreact"
-  ]
+  "eslint.validate": ["javascript", "typescript", "javascriptreact", "typescriptreact"]
 }

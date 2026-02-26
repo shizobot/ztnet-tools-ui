@@ -27,7 +27,9 @@ describe('SettingsPanel', () => {
 
     render(<SettingsPanel />);
 
-    expect((screen.getByLabelText('API Host URL') as HTMLInputElement).value).toBe('http://controller.local:9993');
+    expect((screen.getByLabelText('API Host URL') as HTMLInputElement).value).toBe(
+      'http://controller.local:9993',
+    );
     expect((screen.getByLabelText('Auth Token') as HTMLInputElement).value).toBe('store-token');
   });
 });

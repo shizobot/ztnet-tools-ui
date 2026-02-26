@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 
 export type RouteValue = {
   target: string;
@@ -19,7 +19,12 @@ export function RouteRow({ value, onChange, onRemove }: RouteRowProps) {
 
   return (
     <div className="route-row">
-      <input name="target" value={value.target} onChange={update} placeholder="Target (e.g. 10.0.0.0/24)" />
+      <input
+        name="target"
+        value={value.target}
+        onChange={update}
+        placeholder="Target (e.g. 10.0.0.0/24)"
+      />
       <input name="via" value={value.via} onChange={update} placeholder="Via (optional)" />
       <button type="button" className="btn btn-ghost" onClick={onRemove}>
         Remove

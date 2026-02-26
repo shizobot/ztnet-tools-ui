@@ -1,19 +1,16 @@
 import { useState } from 'react';
-import { formatApiError, toApiResult } from '../../api/toApiResult';
-import { ztGet } from '../../api/ztApi';
+import { formatApiError } from '../../api/toApiResult';
+import { useApiClient } from '../../hooks/useApiClient';
 import { copyEl } from '../../lib/clipboard';
-import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
 export function StatusPanel() {
-  const token = useAppStore((state) => state.token);
+  const { apiGet } = useApiClient();
   const { toast } = useToast();
   const [output, setOutput] = useState('Connect and click Refresh to load status.');
 
   const loadStatus = async () => {
-    const result = await toApiResult(() =>
-      ztGet<Record<string, unknown>>({ path: '/status', config: { token } }),
-    );
+    const result = await apiGet<Record<string, unknown>>('/status');
     if (result.ok) {
       setOutput(JSON.stringify(result.data, null, 2));
       return;

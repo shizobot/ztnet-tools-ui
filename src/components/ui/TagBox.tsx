@@ -1,4 +1,5 @@
-import { KeyboardEvent, useState } from 'react';
+import { useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { IpTag } from './IpTag';
 
 type TagBoxProps = {
@@ -7,7 +8,11 @@ type TagBoxProps = {
   placeholder?: string;
 };
 
-export function TagBox({ values, onChange, placeholder = 'Add value and press Enter' }: TagBoxProps) {
+export function TagBox({
+  values,
+  onChange,
+  placeholder = 'Add value and press Enter',
+}: TagBoxProps) {
   const [draft, setDraft] = useState('');
 
   const add = () => {
@@ -28,7 +33,11 @@ export function TagBox({ values, onChange, placeholder = 'Add value and press En
     <div className="tag-box">
       <div className="tag-list">
         {values.map((value) => (
-          <IpTag key={value} ip={value} onRemove={() => onChange(values.filter((item) => item !== value))} />
+          <IpTag
+            key={value}
+            ip={value}
+            onRemove={() => onChange(values.filter((item) => item !== value))}
+          />
         ))}
       </div>
       <input

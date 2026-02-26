@@ -29,7 +29,9 @@ export function NetworkPicker({ networks, onPick }: NetworkPickerProps) {
   const list = useMemo(
     () =>
       networks.filter(
-        (nw) => nw.id.includes(search.toLowerCase()) || (nw.name ?? '').toLowerCase().includes(search.toLowerCase()),
+        (nw) =>
+          nw.id.includes(search.toLowerCase()) ||
+          (nw.name ?? '').toLowerCase().includes(search.toLowerCase()),
       ),
     [networks, search],
   );

@@ -40,7 +40,13 @@ export function Sidebar() {
 
   return (
     <>
-      <div className="sidebar-overlay" id="sidebarOverlay" onClick={closeSidebar} />
+      <button
+        className="sidebar-overlay"
+        id="sidebarOverlay"
+        type="button"
+        aria-label="Close sidebar"
+        onClick={closeSidebar}
+      />
       <aside id="sidebar" aria-label="Primary navigation">
         <nav>
           {NAV_ITEMS.map((item) => (

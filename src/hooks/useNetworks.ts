@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { ApiResult } from '../api/toApiResult';
 
 export type Network = {
@@ -75,8 +76,12 @@ export function filterNetworks(networks: Network[], query: string): Network[] {
 }
 
 export function useNetworks(deps: UseNetworksDeps) {
+  const { apiGet } = deps;
+  const runLoadNetworksData = useCallback(() => loadNetworksData({ apiGet }), [apiGet]);
+  const runFilterNetworks = useCallback(filterNetworks, []);
+
   return {
-    loadNetworksData: () => loadNetworksData(deps),
-    filterNetworks,
+    loadNetworksData: runLoadNetworksData,
+    filterNetworks: runFilterNetworks,
   };
 }

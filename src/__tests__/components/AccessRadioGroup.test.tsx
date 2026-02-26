@@ -7,8 +7,8 @@ describe('AccessRadioGroup', () => {
   it('marks selected access mode', () => {
     render(<AccessRadioGroup value="private" onChange={() => undefined} />);
 
-    expect(screen.getByRole('radio', { name: 'Private' })).toHaveProperty("checked", true);
-    expect(screen.getByRole('radio', { name: 'Public' })).not.toHaveProperty("checked", true);
+    expect(screen.getByRole('radio', { name: 'Private' })).toHaveProperty('checked', true);
+    expect(screen.getByRole('radio', { name: 'Public' })).not.toHaveProperty('checked', true);
   });
 
   it('calls onChange with public when public selected', () => {
