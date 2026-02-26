@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --max-warnings 0 && prettier --check .",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --max-warnings 0 && prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
