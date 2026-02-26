@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prepare": "husky install",
     "lint": "eslint . --max-warnings 0 && prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
+    "test:watch": "vitest",
     "build": "vite build"
   }
 }
