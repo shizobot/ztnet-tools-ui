@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { NetworkPicker } from '../../components/ui/NetworkPicker';
 
 const NETWORKS = [
-  { id: 'abc123', name: 'Office' },
+  { id: 'AbC123', name: 'Office' },
   { id: 'def456', name: 'Home' },
 ];
 
@@ -31,5 +31,19 @@ describe('NetworkPicker', () => {
 
     expect(onPick).toHaveBeenCalledWith('def456');
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('filters mixed-case network id', () => {
+    const onPick = vi.fn();
+
+    render(<NetworkPicker networks={NETWORKS} onPick={onPick} />);
+    fireEvent.click(screen.getByRole('button', { name: '≡ Pick' }));
+
+    fireEvent.change(screen.getByPlaceholderText('Search by id or name'), {
+      target: { value: 'abc' },
+    });
+
+    expect(screen.getByRole('button', { name: /AbC123 Office/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /def456 Home/i })).toBeNull();
   });
 });
