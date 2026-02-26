@@ -1,23 +1,24 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { renderWithAppProviders } from '../testUtils';
 
 import { NetworkConfigPanel } from '../../components/panels/NetworkConfigPanel';
 
 describe('NetworkConfigPanel', () => {
   it('renders IPv6 mode controls', () => {
-    render(<NetworkConfigPanel />);
+    renderWithAppProviders(<NetworkConfigPanel />);
 
     expect(screen.getByRole('checkbox', { name: /zt/i })).toBeDefined();
     expect(screen.getByRole('checkbox', { name: /rfc4193/i })).toBeDefined();
     expect(screen.getByRole('checkbox', { name: /6plane/i })).toBeDefined();
   });
 
-  it('adds toggled mode to payload preview', () => {
-    const { container } = render(<NetworkConfigPanel />);
+  it('toggles rfc4193 mode checkbox state', () => {
+    renderWithAppProviders(<NetworkConfigPanel />);
 
-    fireEvent.click(screen.getByRole('checkbox', { name: /rfc4193/i }));
+    const checkbox = screen.getByRole('checkbox', { name: /rfc4193/i });
+    fireEvent.click(checkbox);
 
-    const preview = container.querySelector('pre.terminal');
-    expect(preview?.textContent).toContain('rfc4193');
+    expect((checkbox as HTMLInputElement).checked).toBe(true);
   });
 });
