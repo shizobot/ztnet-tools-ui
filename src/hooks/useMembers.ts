@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { ApiResult } from '../api/toApiResult';
 
 export type Member = {
@@ -107,9 +108,23 @@ export async function saveMember(
 }
 
 export function useMembers(deps: UseMembersDeps) {
+  const { apiGet, apiPost } = deps;
+  const runLoadMembers = useCallback(
+    (nwid: string) => loadMembers(nwid, { apiGet, apiPost }),
+    [apiGet, apiPost],
+  );
+  const runLoadMemberDetail = useCallback(
+    (nwid: string, memid: string) => loadMemberDetail(nwid, memid, { apiGet, apiPost }),
+    [apiGet, apiPost],
+  );
+  const runSaveMember = useCallback(
+    (input: SaveMemberInput) => saveMember(input, { apiGet, apiPost }),
+    [apiGet, apiPost],
+  );
+
   return {
-    loadMembers: (nwid: string) => loadMembers(nwid, deps),
-    loadMemberDetail: (nwid: string, memid: string) => loadMemberDetail(nwid, memid, deps),
-    saveMember: (input: SaveMemberInput) => saveMember(input, deps),
+    loadMembers: runLoadMembers,
+    loadMemberDetail: runLoadMemberDetail,
+    saveMember: runSaveMember,
   };
 }

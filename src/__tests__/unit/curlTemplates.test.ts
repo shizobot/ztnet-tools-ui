@@ -18,7 +18,13 @@ describe('curlTpls', () => {
 
   it('renders template with resolver values', () => {
     const resolve = (key: 'host' | 'token' | 'nwid' | 'nodeId' | 'memId') =>
-      ({ host: 'http://localhost:9993', token: 'TOKEN', nwid: 'NETWORK', nodeId: 'NODE', memId: 'MEMBER' })[key];
+      ({
+        host: 'http://localhost:9993',
+        token: 'TOKEN',
+        nwid: 'NETWORK',
+        nodeId: 'NODE',
+        memId: 'MEMBER',
+      })[key];
 
     const output = curlTpls['curl-get-net'](resolve);
     expect(output).toContain('http://localhost:9993/controller/network/NETWORK');

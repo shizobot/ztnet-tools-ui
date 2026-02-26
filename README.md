@@ -40,11 +40,10 @@ npm run preview
 
 ## Env vars
 
-| Variable           | Default                 | Description                                                 |
-| ------------------ | ----------------------- | ----------------------------------------------------------- |
-| `VITE_BACKEND_URL` | `http://localhost:3001` | Vite dev-server proxy target for requests to `/api`. |
-| `VITE_API_BASE_URL` | `/api` | Optional runtime override for API base URL used by the frontend client. |
-
+| Variable            | Default                 | Description                                                             |
+| ------------------- | ----------------------- | ----------------------------------------------------------------------- |
+| `VITE_BACKEND_URL`  | `http://localhost:3001` | Vite dev-server proxy target for requests to `/api`.                    |
+| `VITE_API_BASE_URL` | `/api`                  | Optional runtime override for API base URL used by the frontend client. |
 
 ## API transport strategy (`/api`, proxy, CORS)
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
@@ -19,7 +19,7 @@ export function MemberDetailPanel() {
   const { apiGet, apiPost } = useApiClient();
   const { loadMemberDetail, saveMember } = useMembers({ apiGet, apiPost });
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const detail = await loadMemberDetail(nwid, id);
     if (!detail) return;
     setName(detail.name ?? '');
@@ -29,11 +29,11 @@ export function MemberDetailPanel() {
     setCaps((detail.capabilities ?? []).join(' '));
     setTags((detail.tags ?? []).map(([k, v]) => `${k}=${v}`).join(' '));
     setRaw(JSON.stringify(detail.raw, null, 2));
-  };
+  }, [id, loadMemberDetail, nwid]);
 
   useEffect(() => {
     void load();
-  }, [nwid, id]);
+  }, [load]);
 
   return (
     <section className="panel" id="panel-member-detail">
@@ -46,8 +46,8 @@ export function MemberDetailPanel() {
         </div>
       </div>
       <div className="card">
-        <label>Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} />
+        <label htmlFor="memberName">Name</label>
+        <input id="memberName" value={name} onChange={(e) => setName(e.target.value)} />
         <label>
           <input
             type="checkbox"
@@ -64,8 +64,9 @@ export function MemberDetailPanel() {
           />{' '}
           Active Bridge
         </label>
-        <label>IP Assignments</label>
+        <label htmlFor="memberIpAssignments">IP Assignments</label>
         <input
+          id="memberIpAssignments"
           value={ipAssignments.join(',')}
           onChange={(e) =>
             setIpAssignments(
@@ -76,10 +77,10 @@ export function MemberDetailPanel() {
             )
           }
         />
-        <label>Capabilities</label>
-        <input value={caps} onChange={(e) => setCaps(e.target.value)} />
-        <label>Tags</label>
-        <input value={tags} onChange={(e) => setTags(e.target.value)} />
+        <label htmlFor="memberCapabilities">Capabilities</label>
+        <input id="memberCapabilities" value={caps} onChange={(e) => setCaps(e.target.value)} />
+        <label htmlFor="memberTags">Tags</label>
+        <input id="memberTags" value={tags} onChange={(e) => setTags(e.target.value)} />
         <button
           className="btn btn-primary"
           type="button"

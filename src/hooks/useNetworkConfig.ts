@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { ApiResult } from '../api/toApiResult';
 
 export type NetworkConfig = {
@@ -110,9 +111,24 @@ export async function deleteNetwork(
 }
 
 export function useNetworkConfig(deps: UseNetworkConfigDeps) {
+  const { apiDelete, apiGet, apiPost } = deps;
+
+  const runLoadNetworkConfig = useCallback(
+    (nwid: string) => loadNetworkConfig(nwid, { apiGet, apiPost, apiDelete }),
+    [apiDelete, apiGet, apiPost],
+  );
+  const runSaveNetworkConfig = useCallback(
+    (input: SaveNetworkConfigInput) => saveNetworkConfig(input, { apiGet, apiPost, apiDelete }),
+    [apiDelete, apiGet, apiPost],
+  );
+  const runDeleteNetwork = useCallback(
+    (nwid: string) => deleteNetwork(nwid, { apiGet, apiPost, apiDelete }),
+    [apiDelete, apiGet, apiPost],
+  );
+
   return {
-    loadNetworkConfig: (nwid: string) => loadNetworkConfig(nwid, deps),
-    saveNetworkConfig: (input: SaveNetworkConfigInput) => saveNetworkConfig(input, deps),
-    deleteNetwork: (nwid: string) => deleteNetwork(nwid, deps),
+    loadNetworkConfig: runLoadNetworkConfig,
+    saveNetworkConfig: runSaveNetworkConfig,
+    deleteNetwork: runDeleteNetwork,
   };
 }

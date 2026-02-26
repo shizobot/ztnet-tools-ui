@@ -1,6 +1,7 @@
 # Codex Task — FRONTEND: ztnet-tools-ui
 
 ## Source
+
 https://raw.githubusercontent.com/CleoWixom/webui-ztnetools/refs/heads/main/ztnet-tools-v2.html
 
 ---
@@ -14,6 +15,7 @@ Do NOT rewrite business logic — extract it exactly, then reorganise into prope
 ---
 
 ## Target Repository Structure
+
 ```
 ztnet-tools-ui/
 ├── .github/
@@ -157,7 +159,9 @@ ztnet-tools-ui/
 ## GitHub Actions Workflows
 
 ### `.github/workflows/ci.yml`
+
 Trigger: `push` and `pull_request` → branches `main`, `develop`
+
 ```yaml
 jobs:
   lint:
@@ -190,7 +194,9 @@ jobs:
 ```
 
 ### `.github/workflows/release.yml`
+
 Trigger: `push` to `main` (only after ci.yml succeeds, using `workflow_run`)
+
 ```yaml
 jobs:
   release:
@@ -210,6 +216,7 @@ jobs:
 ```
 
 `.releaserc.json`:
+
 ```json
 {
   "branches": ["main"],
@@ -225,7 +232,9 @@ jobs:
 ```
 
 ### `.github/workflows/codeql.yml`
+
 Trigger: `push` to `main`, `pull_request` to `main`, `schedule` (weekly Monday 08:00 UTC)
+
 ```yaml
 jobs:
   analyze:
@@ -238,7 +247,9 @@ jobs:
 ```
 
 ### `.github/workflows/dependency-review.yml`
+
 Trigger: `pull_request`
+
 ```yaml
 jobs:
   dependency-review:
@@ -259,6 +270,7 @@ jobs:
 2. Each `<div class="panel" id="panel-*">` → dedicated React component in `panels/`
 
 3. JS extraction map:
+
 ```
    const S         → appStore.ts (Zustand)
    const N         → CreateNetworkPanel local useState
@@ -280,6 +292,7 @@ jobs:
 ```
 
 4. Routes:
+
 ```
    /                  → DashboardPanel
    /status            → StatusPanel
@@ -297,21 +310,21 @@ jobs:
 
 ## Tech Stack
 
-| Concern         | Choice                                              |
-|-----------------|-----------------------------------------------------|
-| Bundler         | Vite 5                                              |
-| Framework       | React 18                                            |
-| Language        | TypeScript 5, `strict: true`                        |
-| State           | Zustand                                             |
-| Routing         | React Router v6                                     |
-| HTTP            | native `fetch`                                      |
-| Testing         | Vitest + @testing-library/react + jsdom             |
-| Coverage        | v8 provider, uploaded to Codecov                    |
-| Linting         | ESLint (@typescript-eslint, react-hooks, jsx-a11y)  |
-| Formatting      | Prettier                                            |
-| Commit policy   | Conventional Commits + commitlint + Husky           |
-| Versioning      | semantic-release (auto tag + CHANGELOG on main)     |
-| Security        | CodeQL weekly + dependency-review on PRs            |
+| Concern       | Choice                                             |
+| ------------- | -------------------------------------------------- |
+| Bundler       | Vite 5                                             |
+| Framework     | React 18                                           |
+| Language      | TypeScript 5, `strict: true`                       |
+| State         | Zustand                                            |
+| Routing       | React Router v6                                    |
+| HTTP          | native `fetch`                                     |
+| Testing       | Vitest + @testing-library/react + jsdom            |
+| Coverage      | v8 provider, uploaded to Codecov                   |
+| Linting       | ESLint (@typescript-eslint, react-hooks, jsx-a11y) |
+| Formatting    | Prettier                                           |
+| Commit policy | Conventional Commits + commitlint + Husky          |
+| Versioning    | semantic-release (auto tag + CHANGELOG on main)    |
+| Security      | CodeQL weekly + dependency-review on PRs           |
 
 ---
 

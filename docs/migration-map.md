@@ -3,6 +3,7 @@
 ## Markup
 
 ### Top-level shell
+
 - `header` + connection controls (`#host`, `#token`, `#btnTest`, connection indicator, node-id text) migrate to `src/components/layout/Header.tsx`.
 - `aside#sidebar` (`.nav-group`, `.nav-item`, mobile overlay `#sidebarOverlay`) migrates to `src/components/layout/Sidebar.tsx`.
 - Mobile navigation (`#mobileNav`) migrates to `src/components/layout/MobileNav.tsx`.
@@ -11,6 +12,7 @@
 - Shared widgets in panel markup (`.card`, `.btn`, `.badge`, `.toggle`, tables, route rows, toast area, terminals, picker modal) split into `src/components/ui/*`.
 
 ### Panel extraction (`panel-*` → `src/components/panels/*`)
+
 - `panel-dashboard` → `DashboardPanel.tsx`
 - `panel-status` → `StatusPanel.tsx`
 - `panel-networks` → `NetworksPanel.tsx`
@@ -25,6 +27,7 @@
 ## Styles
 
 ### CSS split plan
+
 - `:root` design tokens block (`--bg`, `--accent`, radii, layout constants, animation timing) → `src/styles/tokens.css`.
 - Reset/base/background layers (`*`, `html`, `body`, `body::before`, `body::after`, scrollbars, global typography) → `src/styles/base.css`.
 - Structural layout rules (`header`, `.app-body`, `aside#sidebar`, `main`, mobile shell positioning) → `src/styles/layout.css`.
@@ -34,6 +37,7 @@
 ## Client Logic
 
 ### Explicit required logic mapping
+
 - `const S` → `src/store/appStore.ts` (Zustand global app/controller state).
 - `const N` → `CreateNetworkPanel.tsx` local `useState` for create-network form state.
 - `const v6State` → `NetworkConfigPanel.tsx` local `useState` for IPv6 options.
@@ -47,6 +51,7 @@
 - `toggleSidebar` → `src/components/layout/Sidebar.tsx`.
 
 ### Additional function-group extraction
+
 - Connection/prefs (`savePrefs`, `loadPrefs`, `testConnection`) → `src/hooks/useConnection.ts`.
 - Networks list + filtering (`loadNetworksData`, filters/search) → `src/hooks/useNetworks.ts`.
 - Network config CRUD (`loadNetworkConfig`, save/update/delete flows) → `src/hooks/useNetworkConfig.ts`.

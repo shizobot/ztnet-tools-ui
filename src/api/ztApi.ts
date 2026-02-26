@@ -1,8 +1,8 @@
-import type { ApiErrorBody } from "../types/zt";
+import type { ApiErrorBody } from '../types/zt';
 
-export const ZT_AUTH_HEADER = "X-ZT1-AUTH" as const;
-export const LEGACY_AUTH_HEADER = "Authorization" as const;
-export const DEFAULT_API_BASE_URL = "/api" as const;
+export const ZT_AUTH_HEADER = 'X-ZT1-AUTH' as const;
+export const LEGACY_AUTH_HEADER = 'Authorization' as const;
+export const DEFAULT_API_BASE_URL = '/api' as const;
 
 export type ZtAuthHeaders = {
   [ZT_AUTH_HEADER]: string;
@@ -15,7 +15,7 @@ export class ZtApiError extends Error {
 
   constructor(message: string, status: number, payload?: ApiErrorBody) {
     super(message);
-    this.name = "ZtApiError";
+    this.name = 'ZtApiError';
     this.status = status;
     this.payload = payload;
   }
@@ -36,19 +36,19 @@ export function buildZtAuthHeaders(token: string): ZtAuthHeaders {
 export function resolveApiBaseUrl(baseUrl?: string): string {
   const explicit = baseUrl?.trim();
   if (explicit) {
-    return explicit.replace(/\/$/, "");
+    return explicit.replace(/\/$/, '');
   }
 
   const envBase = import.meta.env.VITE_API_BASE_URL?.trim();
   if (envBase) {
-    return envBase.replace(/\/$/, "");
+    return envBase.replace(/\/$/, '');
   }
 
   return DEFAULT_API_BASE_URL;
 }
 
 export function resolveApiUrl(path: string, baseUrl?: string): string {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   return `${resolveApiBaseUrl(baseUrl)}${normalizedPath}`;
 }
 
@@ -58,9 +58,7 @@ interface RequestOptions<TBody> {
   body?: TBody;
 }
 
-async function parseErrorPayload(
-  response: Response,
-): Promise<ApiErrorBody | undefined> {
+async function parseErrorPayload(response: Response): Promise<ApiErrorBody | undefined> {
   try {
     const data = (await response.json()) as ApiErrorBody;
     return data;
@@ -70,7 +68,7 @@ async function parseErrorPayload(
 }
 
 async function ztRequest<TResponse, TBody = undefined>(
-  method: "GET" | "POST" | "DELETE",
+  method: 'GET' | 'POST' | 'DELETE',
   options: RequestOptions<TBody>,
 ): Promise<TResponse> {
   const { path, config, body } = options;
@@ -80,20 +78,15 @@ async function ztRequest<TResponse, TBody = undefined>(
     method,
     headers: {
       ...buildZtAuthHeaders(config.token),
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorPayload = await parseErrorPayload(response);
-    const message =
-      errorPayload?.message ?? errorPayload?.error ?? response.statusText;
-    throw new ZtApiError(
-      message || "Unknown API error",
-      response.status,
-      errorPayload,
-    );
+    const message = errorPayload?.message ?? errorPayload?.error ?? response.statusText;
+    throw new ZtApiError(message || 'Unknown API error', response.status, errorPayload);
   }
 
   if (response.status === 204) {
@@ -103,20 +96,14 @@ async function ztRequest<TResponse, TBody = undefined>(
   return (await response.json()) as TResponse;
 }
 
-export function ztGet<TResponse>(
-  options: RequestOptions<undefined>,
-): Promise<TResponse> {
-  return ztRequest<TResponse, undefined>("GET", options);
+export function ztGet<TResponse>(options: RequestOptions<undefined>): Promise<TResponse> {
+  return ztRequest<TResponse, undefined>('GET', options);
 }
 
-export function ztPost<TResponse, TBody>(
-  options: RequestOptions<TBody>,
-): Promise<TResponse> {
-  return ztRequest<TResponse, TBody>("POST", options);
+export function ztPost<TResponse, TBody>(options: RequestOptions<TBody>): Promise<TResponse> {
+  return ztRequest<TResponse, TBody>('POST', options);
 }
 
-export function ztDelete<TResponse>(
-  options: RequestOptions<undefined>,
-): Promise<TResponse> {
-  return ztRequest<TResponse, undefined>("DELETE", options);
+export function ztDelete<TResponse>(options: RequestOptions<undefined>): Promise<TResponse> {
+  return ztRequest<TResponse, undefined>('DELETE', options);
 }

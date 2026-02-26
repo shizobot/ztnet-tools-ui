@@ -13,7 +13,12 @@ export function MobileNav() {
   return (
     <nav id="mob-nav" aria-label="Mobile navigation">
       {MOBILE_ITEMS.map((item) => (
-        <button className="mob-nav-item" key={item.path} type="button" onClick={() => navigate(item.path)}>
+        <button
+          className="mob-nav-item"
+          key={item.path}
+          type="button"
+          onClick={() => navigate(item.path)}
+        >
           {item.label}
         </button>
       ))}

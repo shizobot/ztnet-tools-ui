@@ -1,12 +1,12 @@
-import { FormEvent, useState } from 'react';
-import { formatApiError, toApiResult } from '../../api/toApiResult';
-import { ztDelete, ztGet, ztPost } from '../../api/ztApi';
-import { useAppStore } from '../../store/appStore';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { formatApiError } from '../../api/toApiResult';
+import { useApiClient } from '../../hooks/useApiClient';
 import { copyText } from '../../lib/clipboard';
 import { useToast } from '../ui';
 
 export function RawApiPanel() {
-  const token = useAppStore((state) => state.token);
+  const { apiDelete, apiGet, apiPost } = useApiClient();
   const { toast } = useToast();
   const [method, setMethod] = useState<'GET' | 'POST' | 'DELETE'>('GET');
   const [path, setPath] = useState('/status');
@@ -15,11 +15,14 @@ export function RawApiPanel() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const result = await toApiResult(async () => {
-      if (method === 'GET') return ztGet({ path, config: { token } });
-      if (method === 'DELETE') return ztDelete({ path, config: { token } });
-      return ztPost({ path, config: { token }, body: JSON.parse(body) as Record<string, unknown> });
-    });
+    let result;
+    if (method === 'GET') result = await apiGet<unknown>(path);
+    else if (method === 'DELETE') result = await apiDelete<unknown>(path);
+    else
+      result = await apiPost<Record<string, unknown>, unknown>(
+        path,
+        JSON.parse(body) as Record<string, unknown>,
+      );
 
     if (result.ok) {
       setOutput(JSON.stringify(result.data, null, 2));

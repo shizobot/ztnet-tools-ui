@@ -4,5 +4,7 @@ type TerminalProps = {
 };
 
 export function Terminal({ value, state = 'idle' }: TerminalProps) {
-  return <pre className={['resp', state === 'idle' ? '' : state].filter(Boolean).join(' ')}>{value}</pre>;
+  return (
+    <pre className={['resp', state === 'idle' ? '' : state].filter(Boolean).join(' ')}>{value}</pre>
+  );
 }

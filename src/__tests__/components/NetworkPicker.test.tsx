@@ -23,7 +23,9 @@ describe('NetworkPicker', () => {
     render(<NetworkPicker networks={NETWORKS} onPick={onPick} />);
     fireEvent.click(screen.getByRole('button', { name: '≡ Pick' }));
 
-    fireEvent.change(screen.getByPlaceholderText('Search by id or name'), { target: { value: 'home' } });
+    fireEvent.change(screen.getByPlaceholderText('Search by id or name'), {
+      target: { value: 'home' },
+    });
 
     fireEvent.click(screen.getByRole('button', { name: /def456 Home/i }));
 
