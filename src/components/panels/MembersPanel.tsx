@@ -18,12 +18,21 @@ export function MembersPanel() {
 
   const { apiGet, apiPost } = useApiClient();
   const { loadMembers } = useMembers({ apiGet, apiPost });
+  const trimmedSelectedNwid = selectedNwid.trim();
+  const hasSelectedNetwork = trimmedSelectedNwid.length > 0;
 
   const refresh = useCallback(async () => {
+    if (!trimmedSelectedNwid) {
+      setMembers([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
-    const result = await loadMembers(selectedNwid);
+    const result = await loadMembers(trimmedSelectedNwid);
     setMembers(
       result.rows as Array<{ memid: string; member: { authorized?: boolean; name?: string } }>,
     );
@@ -32,7 +41,7 @@ export function MembersPanel() {
     }
 
     setIsLoading(false);
-  }, [loadMembers, selectedNwid]);
+  }, [loadMembers, trimmedSelectedNwid]);
 
   useEffect(() => {
     void refresh();
@@ -68,8 +77,12 @@ export function MembersPanel() {
           <Notice kind="error">{error}</Notice>
         ) : members.length === 0 && !isLoading ? (
           <EmptyState
-            title="No members yet"
-            description="Join the network from another device to see members here"
+            title={hasSelectedNetwork ? 'No members yet' : 'Select a network'}
+            description={
+              hasSelectedNetwork
+                ? 'Join the network from another device to see members here'
+                : 'Choose a network in NetworkPicker to load members'
+            }
             icon="◎"
           />
         ) : (
