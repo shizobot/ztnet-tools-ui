@@ -1,6 +1,7 @@
 import type { ApiResult } from '../api/toApiResult';
 
 export type ConnectionPrefs = {
+  apiMode: 'proxy' | 'direct';
   host: string;
   token: string;
   persistToken?: boolean;
@@ -22,10 +23,12 @@ export type UseConnectionDeps = {
 const HOST_KEY = 'ztnet_host';
 const TOKEN_KEY = 'ztnet_token';
 const TOKEN_PERSIST_KEY = 'ztnet_persist_token';
+const API_MODE_KEY = 'ztnet_api_mode';
 
 export function savePrefs(state: ConnectionPrefs): void {
   try {
     localStorage.setItem(HOST_KEY, state.host);
+    localStorage.setItem(API_MODE_KEY, state.apiMode);
     const persistToken = state.persistToken ?? false;
     localStorage.setItem(TOKEN_PERSIST_KEY, persistToken ? '1' : '0');
 
@@ -43,6 +46,7 @@ export function savePrefs(state: ConnectionPrefs): void {
 export function clearPrefs(): void {
   try {
     localStorage.removeItem(HOST_KEY);
+    localStorage.removeItem(API_MODE_KEY);
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_PERSIST_KEY);
   } catch {
@@ -52,11 +56,13 @@ export function clearPrefs(): void {
 
 export function loadPrefs(): Partial<ConnectionPrefs> {
   try {
+    const apiMode = localStorage.getItem(API_MODE_KEY) === 'direct' ? 'direct' : 'proxy';
     const host = localStorage.getItem(HOST_KEY) ?? '';
     const persistToken = localStorage.getItem(TOKEN_PERSIST_KEY) === '1';
     const token = localStorage.getItem(TOKEN_KEY) ?? '';
 
     return {
+      apiMode,
       ...(host ? { host } : {}),
       persistToken,
       ...(persistToken && token ? { token } : {}),
@@ -68,10 +74,11 @@ export function loadPrefs(): Partial<ConnectionPrefs> {
 
 export function restoreConnectionStateFromPrefs(): Pick<
   ConnectionState,
-  'host' | 'token' | 'connected' | 'nodeId'
+  'apiMode' | 'host' | 'token' | 'connected' | 'nodeId'
 > {
   const prefs = loadPrefs();
   return {
+    apiMode: prefs.apiMode ?? 'proxy',
     host: prefs.host ?? '',
     token: prefs.token ?? '',
     connected: false,
@@ -84,6 +91,7 @@ export async function testConnection(
   deps: UseConnectionDeps,
 ): Promise<ConnectionState> {
   const nextState: ConnectionState = {
+    apiMode: input.apiMode,
     host: input.host,
     token: input.token,
     nodeId: '',

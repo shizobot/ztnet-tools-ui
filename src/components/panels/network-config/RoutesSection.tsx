@@ -1,6 +1,6 @@
 import { RouteRow } from '../../ui';
 
-type Route = { target: string; via?: string | null };
+type Route = { target: string; via?: string };
 
 type RouteEditor = {
   appendItem: (value: Route) => void;
@@ -39,11 +39,7 @@ function RouteRows({
           onRemove={() => editor.removeItem(index)}
         />
       ))}
-      <button
-        type="button"
-        className="btn"
-        onClick={() => editor.appendItem({ target: '', via: '' })}
-      >
+      <button type="button" className="btn" onClick={() => editor.appendItem({ target: '' })}>
         {addLabel}
       </button>
     </>

@@ -5,6 +5,7 @@ import { useAppStore } from '../../../store/appStore';
 describe('appStore', () => {
   beforeEach(() => {
     useAppStore.setState({
+      apiMode: 'proxy',
       host: '',
       token: '',
       nodeId: '',
@@ -24,10 +25,16 @@ describe('appStore', () => {
   it('sets connection preferences and connected state', () => {
     const store = useAppStore.getState();
 
-    store.setConnectionPrefs({ host: 'http://localhost:3001', token: 'abc', nodeId: 'node-1' });
+    store.setConnectionPrefs({
+      apiMode: 'direct',
+      host: 'http://localhost:3001',
+      token: 'abc',
+      nodeId: 'node-1',
+    });
     store.setConnected(true);
 
     const state = useAppStore.getState();
+    expect(state.apiMode).toBe('direct');
     expect(state.host).toBe('http://localhost:3001');
     expect(state.token).toBe('abc');
     expect(state.nodeId).toBe('node-1');

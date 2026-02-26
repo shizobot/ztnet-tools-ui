@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useApiClient } from '../../hooks/useApiClient';
+import { useApiClient, resolveApiClientBaseUrl } from '../../hooks/useApiClient';
 import { useAppStore } from '../../store/appStore';
 import { ztDelete, ztGet, ztPost } from '../../api/ztApi';
 
@@ -11,11 +11,28 @@ vi.mock('../../api/ztApi', () => ({
   ztDelete: vi.fn(),
 }));
 
+describe('resolveApiClientBaseUrl', () => {
+  it('uses relative /api flow in proxy mode even when host is populated', () => {
+    expect(resolveApiClientBaseUrl('proxy', 'http://controller.local:9993')).toBeUndefined();
+  });
+
+  it('uses explicit host only in direct mode', () => {
+    expect(resolveApiClientBaseUrl('direct', 'http://controller.local:9993')).toBe(
+      'http://controller.local:9993',
+    );
+  });
+
+  it('falls back to default /api resolution when direct mode host is blank', () => {
+    expect(resolveApiClientBaseUrl('direct', '   ')).toBeUndefined();
+  });
+});
+
 describe('useApiClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useAppStore.setState((state) => ({
       ...state,
+      apiMode: 'proxy',
       host: '',
       token: 'store-token',
     }));
@@ -24,8 +41,12 @@ describe('useApiClient', () => {
     vi.mocked(ztDelete).mockResolvedValue({} as never);
   });
 
-  it('passes host from store as baseUrl when present', async () => {
-    useAppStore.setState((state) => ({ ...state, host: 'http://controller.local:9993' }));
+  it('uses direct host as baseUrl only when api mode is direct', async () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      apiMode: 'direct',
+      host: 'http://controller.local:9993',
+    }));
     const { result } = renderHook(() => useApiClient());
 
     await act(async () => {
@@ -49,7 +70,12 @@ describe('useApiClient', () => {
     });
   });
 
-  it('passes empty host through so ztApi fallback resolution can apply', async () => {
+  it('keeps baseUrl undefined in proxy mode so /api is used', async () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      apiMode: 'proxy',
+      host: 'http://controller.local:9993',
+    }));
     const { result } = renderHook(() => useApiClient());
 
     await act(async () => {
@@ -58,7 +84,7 @@ describe('useApiClient', () => {
 
     expect(ztGet).toHaveBeenCalledWith({
       path: '/status',
-      config: { token: 'store-token', baseUrl: '' },
+      config: { token: 'store-token', baseUrl: undefined },
     });
   });
 });

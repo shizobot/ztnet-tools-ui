@@ -46,37 +46,43 @@ npm run preview
 
 ## Env vars
 
-| Variable            | Default                 | Description                                                             |
-| ------------------- | ----------------------- | ----------------------------------------------------------------------- |
-| `VITE_BACKEND_URL`  | `http://localhost:3001` | Vite dev-server proxy target for requests to `/api`.                    |
-| `VITE_API_BASE_URL` | `/api`                  | Optional runtime override for API base URL used by the frontend client. |
+| Variable           | Default                 | Description                                                               |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------- |
+| `VITE_BACKEND_URL` | `http://localhost:3001` | Vite dev-server proxy target for requests to `/api` in local development. |
 
 ## API transport strategy (`/api`, proxy, CORS)
 
-Frontend API calls are centralized in `src/api/ztApi.ts` and now resolve to a single base URL.
+The frontend now defaults to **proxy mode**: all browser requests are relative (`/api/...`) and should be routed by Vite in development or by an edge reverse proxy in production.
 
-- **Default mode (recommended):** relative `/api` base.
-  - Browser calls look like `/api/status`, `/api/controller/network`, etc.
-  - In development, Vite proxies `/api` to `VITE_BACKEND_URL`.
-  - In production, your reverse proxy (Nginx/Caddy/Traefik) should route `/api` to the backend service.
-- **Optional override:** set `VITE_API_BASE_URL` for a fully qualified API URL if a direct upstream is required.
+### Proxy mode vs direct mode
 
-### Dev flow
+| Mode                 | API base used by frontend                                  | Typical use case                                                 | CORS requirements                                                                              | Recommendation                                   |
+| -------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Proxy mode (default) | `/api`                                                     | Local dev with Vite proxy, production behind Nginx/Caddy/Traefik | Usually none (same-origin from browser perspective)                                            | ✅ Preferred for both development and production |
+| Direct mode (opt-in) | Explicit host from Settings (e.g. `http://localhost:9993`) | Diagnostics or temporary setups where proxy is unavailable       | Backend **must** allow frontend origin + `X-ZT1-AUTH`, `Authorization`, `Content-Type` headers | ⚠️ Use only when proxy routing cannot be used    |
+
+### Endpoint resolution priority
+
+1. If Settings enable **direct mode** and host is non-empty, frontend uses that explicit host.
+2. Otherwise frontend uses relative `/api`.
+3. Vite dev-server (or production reverse proxy) forwards `/api/*` to backend.
+
+### Development flow
 
 1. Start backend at `http://localhost:3001` (or your own target).
 2. Run frontend with `npm run dev`.
-3. Vite forwards any request under `/api` to `VITE_BACKEND_URL`.
+3. Vite forwards `/api/*` to `VITE_BACKEND_URL`.
 
-This avoids browser CORS issues in local dev because requests are same-origin to Vite.
+### Production path (recommended)
 
-### Prod flow
-
-Deploy static frontend behind a reverse proxy and keep API traffic under the same origin:
+Deploy the static frontend and expose backend through the same public origin:
 
 - `https://your-app.example/*` → frontend static assets
 - `https://your-app.example/api/*` → backend service
 
-If you keep same-origin routing via reverse proxy, CORS can remain disabled or highly restrictive. If frontend and backend are on different origins, configure backend CORS explicitly to allow the frontend origin and required headers (`X-ZT1-AUTH`, `Authorization`, `Content-Type`).
+This keeps browser calls same-origin and avoids fragile CORS-dependent direct calls.
+
+If you must run direct mode across origins, configure backend CORS explicitly for the frontend origin and required headers (`X-ZT1-AUTH`, `Authorization`, `Content-Type`).
 
 ## Test run
 
