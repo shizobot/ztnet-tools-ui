@@ -1,10 +1,19 @@
 import { fireEvent, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithAppProviders } from '../testUtils';
 
 import { CreateNetworkPanel } from '../../components/panels/CreateNetworkPanel';
+import { ztPost } from '../../api/ztApi';
+
+vi.mock('../../api/ztApi', () => ({
+  ztPost: vi.fn(),
+}));
 
 describe('CreateNetworkPanel', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('updates network name input', () => {
     renderWithAppProviders(<CreateNetworkPanel />);
 
@@ -24,5 +33,17 @@ describe('CreateNetworkPanel', () => {
     );
 
     expect(payload).toBeDefined();
+  });
+
+  it('keeps create button disabled without node id and does not call API', () => {
+    renderWithAppProviders(<CreateNetworkPanel />);
+
+    const createButton = screen.getByRole('button', { name: 'Create Network' });
+    expect(createButton).toHaveProperty('disabled', true);
+
+    fireEvent.click(createButton);
+
+    expect(ztPost).not.toHaveBeenCalled();
+    expect(screen.getByText('Connect in Settings first to provide a valid Node ID.')).toBeDefined();
   });
 });

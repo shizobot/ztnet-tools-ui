@@ -4,7 +4,7 @@ import { formatApiError, toApiResult } from '../../api/toApiResult';
 import { ztPost } from '../../api/ztApi';
 import { EASY_RANGES } from '../../constants/easyRanges';
 import { useAppStore } from '../../store/appStore';
-import { AccessRadioGroup, IpRangeGrid, RouteRow, useToast } from '../ui';
+import { AccessRadioGroup, IpRangeGrid, Notice, RouteRow, useToast } from '../ui';
 
 type Pool = { ipRangeStart: string; ipRangeEnd: string };
 type Route = { target: string; via: string | null };
@@ -28,6 +28,7 @@ export function CreateNetworkPanel() {
   const [n, setN] = useState<NewNetworkState>(INITIAL_N);
   const [newNetName, setNewNetName] = useState('');
   const [access, setAccess] = useState<'private' | 'public'>('private');
+  const hasNodeId = nodeId.trim().length > 0;
 
   const fillDefaults = () => {
     setNewNetName('my-network');
@@ -41,6 +42,11 @@ export function CreateNetworkPanel() {
   };
 
   const createNetwork = async () => {
+    if (!hasNodeId) {
+      toast('Connect in Settings first: Node ID is required.', 'warn');
+      return;
+    }
+
     const result = await toApiResult(() =>
       ztPost({
         path: `/controller/network/${nodeId}______`,
@@ -82,13 +88,18 @@ export function CreateNetworkPanel() {
       <div className="page-hdr">
         <div>
           <div className="page-title">Create Network</div>
-          <div className="page-sub">POST /controller/network/{'{nodeId}'}______</div>
+          <div className="page-sub">
+            POST /controller/network/{'{nodeId}'}______ · Connect in Settings first
+          </div>
         </div>
         <button className="btn btn-ghost btn-sm" onClick={fillDefaults} type="button">
           ⊛ Fill Defaults
         </button>
       </div>
       <div className="card">
+        {!hasNodeId && (
+          <Notice kind="warn">Connect in Settings first to provide a valid Node ID.</Notice>
+        )}
         <label htmlFor="newNetName">Name</label>
         <input id="newNetName" value={newNetName} onChange={(e) => setNewNetName(e.target.value)} />
         <AccessRadioGroup value={access} onChange={setAccess} />
@@ -132,7 +143,12 @@ export function CreateNetworkPanel() {
         >
           Add route
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => void createNetwork()}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={!hasNodeId}
+          onClick={() => void createNetwork()}
+        >
           Create Network
         </button>
       </div>
