@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const NAV_ITEMS = [
@@ -30,11 +31,24 @@ export function closeSidebar() {
   document.getElementById('menuBtn')?.classList.remove('open');
 }
 
+function isOverlayDismissKey(event: KeyboardEvent<HTMLButtonElement>) {
+  return event.key === 'Enter' || event.key === ' ';
+}
+
 export function Sidebar() {
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
     navigate(path);
+    closeSidebar();
+  };
+
+  const handleOverlayKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!isOverlayDismissKey(event)) {
+      return;
+    }
+
+    event.preventDefault();
     closeSidebar();
   };
 
@@ -44,8 +58,9 @@ export function Sidebar() {
         className="sidebar-overlay"
         id="sidebarOverlay"
         type="button"
-        aria-label="Close sidebar"
+        aria-label="Close sidebar navigation"
         onClick={closeSidebar}
+        onKeyDown={handleOverlayKeyDown}
       />
       <aside id="sidebar" aria-label="Primary navigation">
         <nav>
