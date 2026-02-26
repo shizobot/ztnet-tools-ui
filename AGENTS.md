@@ -23,7 +23,7 @@ ztnet-tools-ui/
 │   │   ├── codeql.yml           # GitHub CodeQL security analysis
 │   │   └── dependency-review.yml # blocks PRs that introduce vulnerable deps
 │   │
-│   ├── CODEOWNERS               # * @yourorg/frontend-team
+│   ├── CODEOWNERS               # * @shizobot/frontend-team
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── ISSUE_TEMPLATE/
 │       ├── bug_report.md
