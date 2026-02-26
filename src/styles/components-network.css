@@ -1,0 +1,107 @@
+/* ═══════════════════════════════════════════
+   NETWORK CARDS
+═══════════════════════════════════════════ */
+.net-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.net-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.net-card:hover {
+  border-color: var(--border2);
+  background: var(--bg4);
+}
+.net-card:hover::before {
+  opacity: 1;
+}
+.net-card.selected {
+  border-color: rgba(0, 204, 255, 0.4);
+  background: rgba(0, 204, 255, 0.04);
+}
+.net-card.selected::before {
+  opacity: 1;
+}
+.net-card:active {
+  transform: scale(0.99);
+}
+
+.net-id {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-family: 'IBM Plex Mono', monospace;
+  min-width: 160px;
+  flex-shrink: 0;
+}
+.net-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.net-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.net-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity var(--transition);
+  flex-shrink: 0;
+}
+.net-card:hover .net-actions {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSE BOX
+═══════════════════════════════════════════ */
+.resp {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--text2);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 320px;
+  overflow-y: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  transition: border-color var(--transition);
+}
+.resp.ok {
+  border-color: rgba(0, 232, 160, 0.3);
+  color: var(--green);
+}
+.resp.err {
+  border-color: rgba(255, 61, 85, 0.3);
+  color: var(--red);
+}

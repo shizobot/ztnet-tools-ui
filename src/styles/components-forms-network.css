@@ -1,0 +1,138 @@
+/* ─── IP range grid (Easy tab) ─── */
+.ip-range-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.ip-range-btn {
+  padding: 8px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #90b8d0;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.ip-range-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 204, 255, 0.06);
+}
+.ip-range-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 204, 255, 0.1);
+  box-shadow: 0 0 0 1px rgba(0, 204, 255, 0.2);
+}
+
+/* ─── Add sub-card (add-route / add-pool inline form) ─── */
+.add-sub-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+.add-sub-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7aaac8;
+  margin-bottom: 10px;
+}
+
+/* ─── Route row (enhanced) ─── */
+.route-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.route-tgt {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 12px;
+}
+.route-via {
+  color: #6a9ab8;
+  font-size: 10px;
+}
+.route-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.route-tag.lan {
+  background: rgba(0, 232, 160, 0.1);
+  color: var(--green);
+  border: 1px solid rgba(0, 232, 160, 0.2);
+}
+.route-tag.dflt {
+  background: rgba(255, 140, 66, 0.1);
+  color: var(--orange);
+  border: 1px solid rgba(255, 140, 66, 0.2);
+}
+.route-tag.pub {
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(255, 204, 0, 0.2);
+}
+
+/* ─── DNS server row ─── */
+.dns-server-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  margin-bottom: 5px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+.dns-server-row .dns-ip {
+  flex: 1;
+}
+
+/* ─── Collapsible advanced section ─── */
+.collapsible-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px 0;
+  user-select: none;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.collapsible-hdr:hover .collapsible-title {
+  color: var(--accent);
+}
+.collapsible-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+}
+.collapsible-arrow {
+  color: #6a9ab8;
+  font-size: 10px;
+  transition: transform var(--transition);
+}
+.collapsible-hdr.open .collapsible-arrow {
+  transform: rotate(180deg);
+}

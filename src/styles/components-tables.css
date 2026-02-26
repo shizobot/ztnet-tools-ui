@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════
+   TOGGLE SWITCH
+═══════════════════════════════════════════ */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.toggle input {
+  display: none;
+}
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bg5);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.toggle-thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  left: 2px;
+  background: var(--text3);
+  border-radius: 50%;
+  transition: all var(--transition);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.toggle input:checked ~ .toggle-track {
+  background: rgba(0, 232, 160, 0.15);
+  border-color: var(--green);
+}
+.toggle input:checked ~ .toggle-track .toggle-thumb {
+  background: var(--green);
+  transform: translateX(16px);
+  box-shadow: 0 0 8px rgba(0, 232, 160, 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 500px;
+}
+thead tr {
+  border-bottom: 1px solid var(--border);
+}
+th {
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #6a9ab8;
+  padding: 8px 12px;
+}
+tbody tr {
+  border-bottom: 1px solid rgba(26, 42, 58, 0.5);
+  transition: background var(--transition);
+}
+tbody tr:hover {
+  background: rgba(0, 204, 255, 0.025);
+}
+td {
+  padding: 11px 12px;
+  color: var(--text);
+  vertical-align: middle;
+}
+td.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text2);
+  font-size: 11px;
+}

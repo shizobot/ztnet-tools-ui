@@ -1,0 +1,23 @@
+/* Layout body and main content */
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.app-body {
+  display: flex;
+  padding-top: var(--header-h);
+  min-height: 100vh;
+  /* No position/z-index here — avoids creating a stacking context
+     that would trap the sidebar below the overlay */
+}
+
+/* ═══════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════ */
+main {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  min-width: 0;
+  padding: 24px;
+  padding-bottom: 32px;
+}

@@ -1,0 +1,43 @@
+/* ═══════════════════════════════════════════
+   BADGES
+═══════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+.b-green {
+  background: rgba(0, 232, 160, 0.1);
+  color: var(--green);
+  border: 1px solid rgba(0, 232, 160, 0.2);
+}
+.b-red {
+  background: rgba(255, 61, 85, 0.1);
+  color: var(--red);
+  border: 1px solid rgba(255, 61, 85, 0.2);
+}
+.b-blue {
+  background: rgba(0, 204, 255, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+}
+.b-gray {
+  background: rgba(106, 143, 168, 0.1);
+  color: var(--text2);
+  border: 1px solid rgba(106, 143, 168, 0.15);
+}
+.b-yellow {
+  background: rgba(255, 204, 0, 0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(255, 204, 0, 0.2);
+}
+.b-orange {
+  background: rgba(255, 140, 66, 0.1);
+  color: var(--orange);
+  border: 1px solid rgba(255, 140, 66, 0.2);
+}

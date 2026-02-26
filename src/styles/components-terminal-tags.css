@@ -1,0 +1,121 @@
+/* ═══════════════════════════════════════════
+   TERMINAL / CODE BLOCK
+═══════════════════════════════════════════ */
+.terminal {
+  background: #000d06;
+  border: 1px solid #0f2a1a;
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.terminal-hdr {
+  background: #0a1f12;
+  padding: 9px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #0f2a1a;
+}
+.term-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.term-title {
+  margin-left: 8px;
+  font-size: 10px;
+  color: #2a5a2a;
+}
+.terminal-body {
+  padding: 16px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #00e060;
+  font-family: 'IBM Plex Mono', monospace;
+  max-height: 280px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.terminal-body .c {
+  color: #2a5a2a;
+}
+.terminal-body .cmd {
+  color: #00aaee;
+  word-break: break-all;
+}
+.terminal-body .out {
+  color: #60bb60;
+}
+.terminal-body .p {
+  color: #4a8a4a;
+}
+.terminal-body .hl {
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   IP TAGS
+═══════════════════════════════════════════ */
+.tag-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px;
+  min-height: 42px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: border-color var(--transition);
+}
+.tag-box:focus-within {
+  border-color: var(--accent);
+}
+.ip-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.ip-tag button {
+  background: none;
+  border: none;
+  color: #6a9ab8;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 13px;
+  transition: color var(--transition);
+  touch-action: manipulation;
+}
+.ip-tag button:hover {
+  color: var(--red);
+}
+
+/* ═══════════════════════════════════════════
+   ROUTE ROWS
+═══════════════════════════════════════════ */
+.route-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.route-tgt {
+  flex: 1;
+  color: var(--text);
+  font-weight: 500;
+}
+.route-via {
+  color: #6a9ab8;
+  font-size: 10px;
+}
