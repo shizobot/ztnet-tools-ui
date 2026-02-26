@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useMembers } from '../../hooks/useMembers';
+import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
 export function MemberDetailPanel() {

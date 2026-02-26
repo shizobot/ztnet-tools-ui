@@ -1,4 +1,6 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
+
 import { ztGet } from '../../api/ztApi';
 import { useConnection } from '../../hooks/useConnection';
 import { useAppStore } from '../../store/appStore';
@@ -9,6 +11,7 @@ export function SettingsPanel() {
   const [formHost, setFormHost] = useState(host || 'http://localhost:9993');
   const [formToken, setFormToken] = useState(token);
   const [status, setStatus] = useState('');
+  const [persistToken, setPersistToken] = useState(false);
   const { toast } = useToast();
 
   const apiGet = async <T,>(path: string) => {
@@ -20,17 +23,11 @@ export function SettingsPanel() {
     }
   };
 
-  const { testConnection, loadPrefs } = useConnection({ apiGet, refreshDashboard: () => undefined });
-
-  useEffect(() => {
-    const prefs = loadPrefs();
-    if (prefs.host) setFormHost(prefs.host);
-    if (prefs.token) setFormToken(prefs.token);
-  }, [loadPrefs]);
+  const { testConnection, clearPrefs } = useConnection({ apiGet, refreshDashboard: () => undefined });
 
   const applySettings = async (event: FormEvent) => {
     event.preventDefault();
-    const next = await testConnection({ host: formHost, token: formToken });
+    const next = await testConnection({ host: formHost, token: formToken, persistToken });
     setConnectionPrefs({ host: next.host, token: next.token, nodeId: next.nodeId });
     setConnected(next.connected);
     setStatus(next.connected ? `Connected. Node ID: ${next.nodeId}` : 'Connection failed');
@@ -40,6 +37,7 @@ export function SettingsPanel() {
   const clearSettings = () => {
     setFormHost('http://localhost:9993');
     setFormToken('');
+    clearPrefs();
     setConnectionPrefs({ host: '', token: '', nodeId: '' });
     setConnected(false);
     setStatus('Cleared');
@@ -55,6 +53,15 @@ export function SettingsPanel() {
         <input id="settingsHost" className="form-input" value={formHost} onChange={(e) => setFormHost(e.target.value)} />
         <label className="lbl" htmlFor="settingsToken">Auth Token</label>
         <input id="settingsToken" type="password" className="form-input" value={formToken} onChange={(e) => setFormToken(e.target.value)} />
+        <label className="lbl" htmlFor="settingsPersistToken">
+          <input
+            id="settingsPersistToken"
+            type="checkbox"
+            checked={persistToken}
+            onChange={(e) => setPersistToken(e.target.checked)}
+          />
+          Remember token on this device
+        </label>
         <div className="flex gap-8">
           <button type="submit" className="btn btn-primary">✓ Apply & Connect</button>
           <button type="button" className="btn btn-ghost" onClick={clearSettings}>✕ Clear</button>

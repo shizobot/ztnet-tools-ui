@@ -113,3 +113,26 @@ src/
 ├─ components/  # shared UI + layout primitives
 └─ panels/      # route-level screens (dashboard, networks, members, settings)
 ```
+
+## Secret storage policy & threat model
+
+### Current policy
+
+- `host` may be persisted in `localStorage` to improve reconnect UX.
+- `token` is **ephemeral by default** and is kept in in-memory Zustand state for the current tab session only.
+- Persisting token to `localStorage` is opt-in via **"Remember token on this device"** in Settings.
+- For higher-security deployments, prefer short-lived backend-issued session credentials (HttpOnly/Secure cookies) and avoid long-lived controller tokens in browsers.
+
+### Threat model (frontend-focused)
+
+- If an attacker achieves XSS in this app, they can execute JavaScript in the same origin and access runtime state.
+- In ephemeral mode, token exposure window is reduced to active tab lifetime.
+- In persisted mode, XSS impact increases because attacker code can read long-lived token from `localStorage`.
+- XSS can also perform authenticated actions directly while the page is open, even without persistent token storage.
+
+### Mitigations and recommendations
+
+- Keep token persistence disabled unless absolutely required.
+- Use strict Content Security Policy, dependency hygiene, and regular security scanning to reduce XSS risk.
+- Prefer backend session mediation with short TTL + rotation, HttpOnly/Secure cookies, and server-side token vaulting for production environments.
+- Rotate ZeroTier controller tokens immediately after suspected compromise.
