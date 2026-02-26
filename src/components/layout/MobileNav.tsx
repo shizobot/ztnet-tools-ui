@@ -11,9 +11,9 @@ export function MobileNav() {
   const navigate = useNavigate();
 
   return (
-    <nav className="mobile-nav" aria-label="Mobile navigation">
+    <nav id="mob-nav" aria-label="Mobile navigation">
       {MOBILE_ITEMS.map((item) => (
-        <button key={item.path} type="button" onClick={() => navigate(item.path)}>
+        <button className="mob-nav-item" key={item.path} type="button" onClick={() => navigate(item.path)}>
           {item.label}
         </button>
       ))}
