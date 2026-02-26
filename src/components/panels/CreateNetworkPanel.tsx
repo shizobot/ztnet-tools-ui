@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatApiError, toApiResult } from '../../api/toApiResult';
-import { ztPost } from '../../api/ztApi';
+import { formatApiError } from '../../api/toApiResult';
 import { EASY_RANGES } from '../../constants/easyRanges';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useAppStore } from '../../store/appStore';
 import { AccessRadioGroup, IpRangeGrid, Notice, RouteRow, useToast } from '../ui';
 
@@ -24,7 +24,8 @@ const INITIAL_N: NewNetworkState = {
 export function CreateNetworkPanel() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { token, nodeId } = useAppStore();
+  const { nodeId } = useAppStore();
+  const { apiPost } = useApiClient();
   const [n, setN] = useState<NewNetworkState>(INITIAL_N);
   const [newNetName, setNewNetName] = useState('');
   const [access, setAccess] = useState<'private' | 'public'>('private');
@@ -47,20 +48,14 @@ export function CreateNetworkPanel() {
       return;
     }
 
-    const result = await toApiResult(() =>
-      ztPost({
-        path: `/controller/network/${nodeId}______`,
-        config: { token },
-        body: {
-          ipAssignmentPools: n.pools,
-          routes: n.routes,
-          v4AssignMode: { zt: true },
-          v6AssignMode: n.v6,
-          private: access === 'private',
-          name: newNetName,
-        },
-      }),
-    );
+    const result = await apiPost(`/controller/network/${nodeId}______`, {
+      ipAssignmentPools: n.pools,
+      routes: n.routes,
+      v4AssignMode: { zt: true },
+      v6AssignMode: n.v6,
+      private: access === 'private',
+      name: newNetName,
+    });
 
     if (result.ok) {
       toast('Network created', 'ok');
