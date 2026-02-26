@@ -1,0 +1,138 @@
+/* ═══════════════════════════════════════════
+   DIVIDER / NOTICE
+═══════════════════════════════════════════ */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 18px 0;
+}
+
+.notice {
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border-left: 3px solid transparent;
+  line-height: 1.55;
+}
+.notice.info {
+  background: rgba(0, 204, 255, 0.05);
+  border-color: rgba(0, 204, 255, 0.4);
+}
+.notice.warn {
+  background: rgba(255, 204, 0, 0.05);
+  border-color: rgba(255, 204, 0, 0.5);
+}
+.notice.error {
+  background: rgba(255, 61, 85, 0.05);
+  border-color: rgba(255, 61, 85, 0.5);
+}
+.notice-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-top: 1px;
+}
+.notice.info .notice-icon {
+  color: var(--accent);
+}
+.notice.warn .notice-icon {
+  color: var(--yellow);
+}
+.notice.error .notice-icon {
+  color: var(--red);
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+.tab {
+  padding: 9px 14px;
+  font-size: 11px;
+  color: #6a9ab8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  margin-bottom: -1px;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.tab:hover {
+  color: var(--text2);
+}
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   SEARCH BAR
+═══════════════════════════════════════════ */
+.search-bar {
+  position: relative;
+  margin-bottom: 14px;
+}
+.search-bar .search-ic {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6a9ab8;
+  pointer-events: none;
+  font-size: 13px;
+}
+.search-bar .form-input {
+  padding-left: 36px;
+}
+
+/* ═══════════════════════════════════════════
+   INLINE SPINNER
+═══════════════════════════════════════════ */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════ */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6a9ab8;
+  font-size: 12px;
+}
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+.empty-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  color: #90b8d0;
+  margin-bottom: 6px;
+}

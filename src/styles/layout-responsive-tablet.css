@@ -1,0 +1,19 @@
+/* Responsive layout and component adjustments */
+
+/* ═══════════════════════════════════════════
+   TABLET — 1024px
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root {
+    --sidebar-w: 190px;
+  }
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hdr-conn .host-input {
+    max-width: 150px;
+  }
+  .hdr-conn .token-input {
+    max-width: 140px;
+  }
+}

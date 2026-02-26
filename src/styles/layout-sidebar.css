@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+aside#sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: var(--header-h);
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* z-index: 150 — must be above overlay (130) and mob-nav (190 only on mobile) */
+  z-index: 150;
+  padding: 12px 0 24px;
+  transition: transform var(--transition);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  /* isolation:isolate ensures sidebar's own stacking context for its children */
+  isolation: isolate;
+}
+
+aside#sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+aside#sidebar::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* z-index must be BELOW sidebar (150) but above main content */
+  z-index: 130;
+  background: rgba(0, 0, 0, 0.65);
+  /* NO backdrop-filter — creates new stacking context and would blur sidebar */
+}
+
+.nav-group {
+  margin-bottom: 4px;
+}
+
+.nav-group-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #4a7a9a;
+  padding: 10px 20px 6px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: #8ab0c8;
+  font-size: 12px;
+  transition: all var(--transition);
+  border-left: 2px solid transparent;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  margin: 1px 8px 1px 0;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.nav-item:active {
+  background: var(--bg4) !important;
+}
+.nav-item:hover {
+  color: #d0e8f8;
+  background: var(--bg3);
+}
+.nav-item.active {
+  color: var(--accent);
+  background: rgba(0, 204, 255, 0.07);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+.nav-item.active .nav-ic {
+  opacity: 1;
+}
+
+.nav-ic {
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: rgba(0, 204, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(0, 204, 255, 0.25);
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
