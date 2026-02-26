@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useMembers } from '../../hooks/useMembers';
 import { useAppStore } from '../../store/appStore';
-import { NetworkPicker, useToast } from '../ui';
+import { EmptyState, NetworkPicker, Notice, useToast } from '../ui';
 
 export function MembersPanel() {
   const navigate = useNavigate();
@@ -12,13 +13,25 @@ export function MembersPanel() {
   const [members, setMembers] = useState<
     Array<{ memid: string; member: { authorized?: boolean; name?: string } }>
   >([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { apiGet, apiPost } = useApiClient();
   const { loadMembers } = useMembers({ apiGet, apiPost });
 
   const refresh = useCallback(async () => {
-    const rows = await loadMembers(selectedNwid);
-    setMembers(rows as Array<{ memid: string; member: { authorized?: boolean; name?: string } }>);
+    setIsLoading(true);
+    setError(null);
+
+    const result = await loadMembers(selectedNwid);
+    setMembers(
+      result.rows as Array<{ memid: string; member: { authorized?: boolean; name?: string } }>,
+    );
+    if (result.error) {
+      setError(formatApiError(result.error, 'Failed to load members'));
+    }
+
+    setIsLoading(false);
   }, [loadMembers, selectedNwid]);
 
   useEffect(() => {
@@ -46,17 +59,27 @@ export function MembersPanel() {
         </div>
       </div>
       <div className="card">
-        {members.map((row) => (
-          <button
-            type="button"
-            className="route-row"
-            key={row.memid}
-            onClick={() => navigate(`/members/${selectedNwid}/${row.memid}`)}
-          >
-            <span>{row.memid}</span>
-            <span>{row.member.name || (row.member.authorized ? 'authorized' : 'pending')}</span>
-          </button>
-        ))}
+        {error ? (
+          <Notice kind="error">{error}</Notice>
+        ) : members.length === 0 && !isLoading ? (
+          <EmptyState
+            title="No members yet"
+            description="There are no members for the selected network."
+            icon="◎"
+          />
+        ) : (
+          members.map((row) => (
+            <button
+              type="button"
+              className="route-row"
+              key={row.memid}
+              onClick={() => navigate(`/members/${selectedNwid}/${row.memid}`)}
+            >
+              <span>{row.memid}</span>
+              <span>{row.member.name || (row.member.authorized ? 'authorized' : 'pending')}</span>
+            </button>
+          ))
+        )}
       </div>
     </section>
   );

@@ -18,11 +18,16 @@ export type NetworksData = {
   pendingCount: number;
 };
 
+export type LoadNetworksResult = {
+  data: NetworksData;
+  error: ApiResult<unknown> | null;
+};
+
 export type UseNetworksDeps = {
   apiGet: <T>(path: string) => Promise<ApiResult<T>>;
 };
 
-export async function loadNetworksData(deps: UseNetworksDeps): Promise<NetworksData> {
+export async function loadNetworksData(deps: UseNetworksDeps): Promise<LoadNetworksResult> {
   const initial: NetworksData = {
     networks: [],
     authorizedCount: 0,
@@ -31,7 +36,7 @@ export async function loadNetworksData(deps: UseNetworksDeps): Promise<NetworksD
 
   const res = await deps.apiGet<string[]>('/controller/network');
   if (!res?.ok) {
-    return initial;
+    return { data: initial, error: res };
   }
 
   const ids = res.data ?? [];
@@ -61,7 +66,10 @@ export async function loadNetworksData(deps: UseNetworksDeps): Promise<NetworksD
     pendingCount += members.filter((member) => !member.authorized).length;
   }
 
-  return { networks, authorizedCount, pendingCount };
+  return {
+    data: { networks, authorizedCount, pendingCount },
+    error: null,
+  };
 }
 
 export function filterNetworks(networks: Network[], query: string): Network[] {
