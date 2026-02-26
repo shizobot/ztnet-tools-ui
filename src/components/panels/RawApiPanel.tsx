@@ -18,11 +18,22 @@ export function RawApiPanel() {
     let result;
     if (method === 'GET') result = await apiGet<unknown>(path);
     else if (method === 'DELETE') result = await apiDelete<unknown>(path);
-    else
+    else {
+      let parsedBody: Record<string, unknown>;
+      try {
+        parsedBody = JSON.parse(body) as Record<string, unknown>;
+      } catch {
+        const message = 'Invalid JSON body. Please fix the request body and try again.';
+        setOutput(message);
+        toast(message, 'err');
+        return;
+      }
+
       result = await apiPost<Record<string, unknown>, unknown>(
         path,
-        JSON.parse(body) as Record<string, unknown>,
+        parsedBody,
       );
+    }
 
     if (result.ok) {
       setOutput(JSON.stringify(result.data, null, 2));
