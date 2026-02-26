@@ -73,7 +73,7 @@ describe('DashboardPanel', () => {
     renderWithAppProviders(<DashboardPanel />);
 
     await waitFor(() => {
-      expect(screen.getByText('No networks available')).toBeDefined();
+      expect(screen.getByText('No networks yet')).toBeDefined();
     });
   });
 });

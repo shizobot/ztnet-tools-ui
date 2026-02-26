@@ -53,7 +53,12 @@ export function MembersPanel() {
               toast(`Selected ${id}`, 'ok');
             }}
           />
-          <button className="btn btn-ghost btn-sm" type="button" onClick={() => void refresh()}>
+          <button
+            className="btn btn-ghost btn-sm"
+            type="button"
+            onClick={() => void refresh()}
+            disabled={isLoading}
+          >
             ↻ Refresh
           </button>
         </div>
@@ -64,7 +69,7 @@ export function MembersPanel() {
         ) : members.length === 0 && !isLoading ? (
           <EmptyState
             title="No members yet"
-            description="There are no members for the selected network."
+            description="Join the network from another device to see members here"
             icon="◎"
           />
         ) : (

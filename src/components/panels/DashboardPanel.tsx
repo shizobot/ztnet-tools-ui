@@ -87,9 +87,9 @@ export function DashboardPanel() {
           <Notice kind="error">{error}</Notice>
         ) : networks.length === 0 && !isLoading ? (
           <EmptyState
-            title="No networks available"
-            description="Connect and create a network to populate this dashboard."
-            icon="◌"
+            title="No networks yet"
+            description="Create your first network to get started"
+            icon="⬡"
           />
         ) : (
           <div>

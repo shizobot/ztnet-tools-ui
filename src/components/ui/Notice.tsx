@@ -7,6 +7,18 @@ type NoticeProps = {
   children: ReactNode;
 };
 
+const KIND_ICON: Record<NoticeKind, string> = {
+  info: 'ℹ',
+  warn: '⚠',
+  error: '✕',
+  ok: '✓',
+};
+
 export function Notice({ kind = 'info', children }: NoticeProps) {
-  return <div className={`notice notice-${kind}`}>{children}</div>;
+  return (
+    <div className={`notice ${kind}`}>
+      <span className="notice-icon">{KIND_ICON[kind]}</span>
+      <span>{children}</span>
+    </div>
+  );
 }

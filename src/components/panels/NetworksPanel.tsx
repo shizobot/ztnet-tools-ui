@@ -76,9 +76,9 @@ export function NetworksPanel() {
           <Notice kind="error">{error}</Notice>
         ) : filtered.length === 0 && !isLoading ? (
           <EmptyState
-            title="No networks found"
-            description={query ? 'Try changing your filter.' : 'Create your first network to get started.'}
-            icon="◌"
+            title={query ? 'No networks match your filter' : 'No networks found'}
+            description={query ? 'Try changing your filter criteria' : 'Create your first ZeroTier network'}
+            icon={query ? '⬡' : '⬢'}
           />
         ) : (
           filtered.map((nw) => (
