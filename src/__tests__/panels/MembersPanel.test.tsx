@@ -58,6 +58,21 @@ describe('MembersPanel', () => {
     expect(await screen.findByText('status 403: forbidden')).toBeDefined();
   });
 
+  it('does not request members when network is not selected', async () => {
+    useAppStore.setState((state) => ({
+      ...state,
+      selectedNwid: '   ',
+    }));
+
+    renderWithAppProviders(<MembersPanel />);
+
+    await waitFor(() => {
+      expect(loadMembersMock).not.toHaveBeenCalled();
+    });
+
+    expect(screen.getByText('Select a network')).toBeDefined();
+    expect(screen.getByText('Choose a network in NetworkPicker to load members')).toBeDefined();
+  });
   it('renders empty state on successful empty response', async () => {
     loadMembersMock.mockResolvedValue({ rows: [], error: null });
 
