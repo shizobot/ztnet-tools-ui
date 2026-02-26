@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# ztnet-tools-ui
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![CI](https://github.com/yourorg/ztnet-tools-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/ztnet-tools-ui/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/yourorg/ztnet-tools-ui/branch/main/graph/badge.svg)](https://codecov.io/gh/yourorg/ztnet-tools-ui)
 
-Currently, two official plugins are available:
+Standalone frontend UI for managing ZeroTier controller data.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Prerequisites
 
-## React Compiler
+- Node.js 20+
+- npm 10+
+- Running backend API endpoint (default expected at `http://localhost:3001`)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Dev setup
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The Vite dev server will start locally and proxy API calls using `VITE_BACKEND_URL`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Build
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
+```
+
+- `npm run build` creates production assets in `dist/`
+- `npm run preview` serves the built bundle for local verification
+
+## Env vars
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_BACKEND_URL` | `http://localhost:3001` | Base backend target used by frontend API proxy/integration. |
+
+## Test run
+
+```bash
+npm run test
+npm run test:coverage
+```
+
+Use the coverage command in CI to upload reports to Codecov.
+
+## Architecture (high level)
+
+```text
+src/
+├─ store/       # global Zustand state (host, token, networks, members, etc.)
+├─ hooks/       # app logic orchestration (connection, networks, members, config)
+├─ api/         # typed fetch wrappers to ZeroTier controller endpoints
+├─ components/  # shared UI + layout primitives
+└─ panels/      # route-level screens (dashboard, networks, members, settings)
 ```
