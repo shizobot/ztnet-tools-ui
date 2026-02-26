@@ -16,74 +16,74 @@ export type CurlValueResolver = (key: CurlVariableKey) => string;
 type CurlTemplateRenderer = (resolve: CurlValueResolver) => string;
 
 export const curlTpls: Readonly<Record<CurlTemplateKey, CurlTemplateRenderer>> = {
-  'curl-status': (cv) => `<span class="c"># ── Get controller status & Node ID ─────────────</span>
-<span class="p">$</span> <span class="cmd">curl "${cv('host')}/status" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+  'curl-status': (cv) => `# ── Get controller status & Node ID ─────────────
+$ curl "${cv('host')}/status" \\
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 
   'curl-list-nets': (
     cv,
-  ) => `<span class="c"># ── List all managed networks ────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl "${cv('host')}/controller/network" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+  ) => `# ── List all managed networks ────────────────────
+$ curl "${cv('host')}/controller/network" \\
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 
   'curl-create-net': (
     cv,
-  ) => `<span class="c"># ── Create a new network (auto-generates ID) ─────</span>
-<span class="p">$</span> <span class="cmd">curl -X POST \\
+  ) => `# ── Create a new network (auto-generates ID) ─────
+$ curl -X POST \\
   "${cv('host')}/controller/network/${cv('nodeId')}______" \\
   -H "${ZT_AUTH_HEADER}: ${cv('token')}" \\
-  -d '{"ipAssignmentPools":[{"ipRangeStart":"192.168.192.1","ipRangeEnd":"192.168.192.254"}],"routes":[{"target":"192.168.192.0/24","via":null}],"v4AssignMode":{"zt":true},"private":true,"name":"my-network"}'</span>`,
+  -d '{"ipAssignmentPools":[{"ipRangeStart":"192.168.192.1","ipRangeEnd":"192.168.192.254"}],"routes":[{"target":"192.168.192.0/24","via":null}],"v4AssignMode":{"zt":true},"private":true,"name":"my-network"}'`,
 
   'curl-get-net': (
     cv,
-  ) => `<span class="c"># ── Get network details ──────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl "${cv('host')}/controller/network/${cv('nwid')}" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+  ) => `# ── Get network details ──────────────────────────
+$ curl "${cv('host')}/controller/network/${cv('nwid')}" \\
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 
   'curl-config-net': (
     cv,
-  ) => `<span class="c"># ── Update network configuration ─────────────────</span>
-<span class="p">$</span> <span class="cmd">curl -X POST \\
+  ) => `# ── Update network configuration ─────────────────
+$ curl -X POST \\
   "${cv('host')}/controller/network/${cv('nwid')}" \\
   -H "${ZT_AUTH_HEADER}: ${cv('token')}" \\
-  -d '{"name":"updated-name","private":true,"multicastLimit":32}'</span>
+  -d '{"name":"updated-name","private":true,"multicastLimit":32}'
 
-<span class="c"># ── Delete network ────────────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl -X DELETE \\
+# ── Delete network ────────────────────────────────
+$ curl -X DELETE \\
   "${cv('host')}/controller/network/${cv('nwid')}" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 
   'curl-list-mem': (
     cv,
-  ) => `<span class="c"># ── List network members ─────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl "${cv('host')}/controller/network/${cv('nwid')}/member" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>
+  ) => `# ── List network members ─────────────────────────
+$ curl "${cv('host')}/controller/network/${cv('nwid')}/member" \\
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"
 
-<span class="c"># ── Get specific member ───────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+# ── Get specific member ───────────────────────────
+$ curl "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 
   'curl-auth-mem': (
     cv,
-  ) => `<span class="c"># ── Authorize a member ───────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl -X POST \\
+  ) => `# ── Authorize a member ───────────────────────────
+$ curl -X POST \\
   "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
   -H "${ZT_AUTH_HEADER}: ${cv('token')}" \\
-  -d '{"authorized":true}'</span>
+  -d '{"authorized":true}'
 
-<span class="c"># ── Deauthorize a member ──────────────────────────</span>
-<span class="p">$</span> <span class="cmd">curl -X POST \\
+# ── Deauthorize a member ──────────────────────────
+$ curl -X POST \\
   "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
   -H "${ZT_AUTH_HEADER}: ${cv('token')}" \\
-  -d '{"authorized":false}'</span>`,
+  -d '{"authorized":false}'`,
 
-  'curl-del-mem': (cv) => `<span class="c"># ⚠ Deauthorize FIRST, then delete ───────────────</span>
-<span class="p">$</span> <span class="cmd">curl -X POST \\
+  'curl-del-mem': (cv) => `# ⚠ Deauthorize FIRST, then delete ───────────────
+$ curl -X POST \\
   "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
   -H "${ZT_AUTH_HEADER}: ${cv('token')}" \\
-  -d '{"authorized":false}'</span>
+  -d '{"authorized":false}'
 
-<span class="p">$</span> <span class="cmd">curl -X DELETE \\
+$ curl -X DELETE \\
   "${cv('host')}/controller/network/${cv('nwid')}/member/${cv('memId')}" \\
-  -H "${ZT_AUTH_HEADER}: ${cv('token')}"</span>`,
+  -H "${ZT_AUTH_HEADER}: ${cv('token')}"`,
 };
