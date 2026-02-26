@@ -27,6 +27,40 @@ export function NetworkConfigPanel() {
   });
   const store = useAppStore();
 
+  const updateConfig = useCallback(
+    (
+      partial: Partial<{
+        routes: typeof store.routes;
+        dnsServers: typeof store.dnsServers;
+      }>,
+    ) => {
+      setNetworkConfig({
+        memberIps: store.memberIps,
+        pools: store.pools,
+        routes: partial.routes ?? store.routes,
+        v6pools: store.v6pools,
+        v6routes: store.v6routes,
+        dnsServers: partial.dnsServers ?? store.dnsServers,
+        dnsDomain: store.dnsDomain,
+      });
+    },
+    [setNetworkConfig, store],
+  );
+
+  const updateRoutes = useCallback(
+    (updater: (routes: typeof store.routes) => typeof store.routes) => {
+      updateConfig({ routes: updater(store.routes) });
+    },
+    [store.routes, updateConfig],
+  );
+
+  const updateDnsServers = useCallback(
+    (updater: (dnsServers: typeof store.dnsServers) => typeof store.dnsServers) => {
+      updateConfig({ dnsServers: updater(store.dnsServers) });
+    },
+    [store.dnsServers, updateConfig],
+  );
+
   const load = useCallback(async () => {
     const cfg = await loadNetworkConfig(nwid);
     if (!cfg) return;
@@ -89,45 +123,19 @@ export function NetworkConfigPanel() {
             key={`${route.target}-${i}`}
             value={{ target: route.target, via: route.via || '' }}
             onChange={(next) =>
-              setNetworkConfig({
-                routes: store.routes.map((r, idx) =>
+              updateRoutes((routes) =>
+                routes.map((r, idx) =>
                   idx === i ? { target: next.target, via: next.via || undefined } : r,
                 ),
-                pools: store.pools,
-                v6pools: store.v6pools,
-                v6routes: store.v6routes,
-                dnsServers: store.dnsServers,
-                dnsDomain: store.dnsDomain,
-                memberIps: store.memberIps,
-              })
+              )
             }
-            onRemove={() =>
-              setNetworkConfig({
-                routes: store.routes.filter((_, idx) => idx !== i),
-                pools: store.pools,
-                v6pools: store.v6pools,
-                v6routes: store.v6routes,
-                dnsServers: store.dnsServers,
-                dnsDomain: store.dnsDomain,
-                memberIps: store.memberIps,
-              })
-            }
+            onRemove={() => updateRoutes((routes) => routes.filter((_, idx) => idx !== i))}
           />
         ))}
         <button
           type="button"
           className="btn"
-          onClick={() =>
-            setNetworkConfig({
-              routes: [...store.routes, { target: '', via: '' }],
-              pools: store.pools,
-              v6pools: store.v6pools,
-              v6routes: store.v6routes,
-              dnsServers: store.dnsServers,
-              dnsDomain: store.dnsDomain,
-              memberIps: store.memberIps,
-            })
-          }
+          onClick={() => updateRoutes((routes) => [...routes, { target: '', via: '' }])}
         >
           Add Route
         </button>
@@ -136,43 +144,17 @@ export function NetworkConfigPanel() {
             key={`${dns}-${i}`}
             value={dns}
             onChange={(value) =>
-              setNetworkConfig({
-                dnsServers: store.dnsServers.map((item, idx) => (idx === i ? value : item)),
-                dnsDomain: store.dnsDomain,
-                pools: store.pools,
-                routes: store.routes,
-                v6pools: store.v6pools,
-                v6routes: store.v6routes,
-                memberIps: store.memberIps,
-              })
+              updateDnsServers((dnsServers) =>
+                dnsServers.map((item, idx) => (idx === i ? value : item)),
+              )
             }
-            onRemove={() =>
-              setNetworkConfig({
-                dnsServers: store.dnsServers.filter((_, idx) => idx !== i),
-                dnsDomain: store.dnsDomain,
-                pools: store.pools,
-                routes: store.routes,
-                v6pools: store.v6pools,
-                v6routes: store.v6routes,
-                memberIps: store.memberIps,
-              })
-            }
+            onRemove={() => updateDnsServers((dnsServers) => dnsServers.filter((_, idx) => idx !== i))}
           />
         ))}
         <button
           type="button"
           className="btn"
-          onClick={() =>
-            setNetworkConfig({
-              dnsServers: [...store.dnsServers, ''],
-              dnsDomain: store.dnsDomain,
-              pools: store.pools,
-              routes: store.routes,
-              v6pools: store.v6pools,
-              v6routes: store.v6routes,
-              memberIps: store.memberIps,
-            })
-          }
+          onClick={() => updateDnsServers((dnsServers) => [...dnsServers, ''])}
         >
           Add DNS
         </button>
