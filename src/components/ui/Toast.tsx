@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 
 type ToastType = 'ok' | 'err';
@@ -20,11 +28,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const timerIdsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
+    const timerIds = timerIdsRef.current;
+
     return () => {
-      timerIdsRef.current.forEach((timerId) => {
+      timerIds.forEach((timerId) => {
         window.clearTimeout(timerId);
       });
-      timerIdsRef.current.clear();
+      timerIds.clear();
     };
   }, []);
 

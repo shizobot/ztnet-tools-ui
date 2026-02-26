@@ -35,4 +35,26 @@ describe('Toast', () => {
 
     spy.mockRestore();
   });
+
+  it('cleans up pending timers on unmount', () => {
+    vi.useFakeTimers();
+    const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+
+    const { unmount } = render(
+      <ToastProvider>
+        <Trigger />
+      </ToastProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'notify' }));
+    expect(vi.getTimerCount()).toBe(1);
+
+    unmount();
+
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+
+    clearTimeoutSpy.mockRestore();
+    vi.useRealTimers();
+  });
 });
