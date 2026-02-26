@@ -1,3 +1,5 @@
+import type { ApiResult } from '../api/toApiResult';
+
 export type ConnectionPrefs = {
   host: string;
   token: string;
@@ -7,9 +9,8 @@ export type ConnectionPrefs = {
 export type ConnectionState = ConnectionPrefs & {
   nodeId: string;
   connected: boolean;
+  errorMessage?: string;
 };
-
-export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
 
 export type StatusPayload = { address?: string };
 
@@ -95,7 +96,7 @@ export async function testConnection(
   }
 
   const res = await deps.apiGet('/status');
-  if (res?.ok) {
+  if (res.ok) {
     nextState.nodeId = res.data?.address ?? '';
     nextState.connected = true;
     savePrefs(input);
@@ -103,6 +104,7 @@ export async function testConnection(
     return nextState;
   }
 
+  nextState.errorMessage = `status ${res.status}: ${res.message}`;
   return nextState;
 }
 
