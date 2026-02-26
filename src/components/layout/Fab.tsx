@@ -19,7 +19,7 @@ export function Fab() {
   };
 
   return (
-    <button className="fab" type="button" aria-label="Quick action" onClick={onClick}>
+    <button id="fab" type="button" aria-label="Quick action" onClick={onClick}>
       +
     </button>
   );

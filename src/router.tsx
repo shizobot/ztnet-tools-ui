@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
       { path: 'members/:nwid/:id', element: <MemberDetailPanel /> },
       { path: 'api', element: <RawApiPanel /> },
       { path: 'curl', element: <CurlBuilderPanel /> },
-      { path: 'settings', element: <SettingsPanel /> },
-    ],
-  },
+      { path: 'settings', element: <SettingsPanel /> }
+    ]
+  }
 ]);
