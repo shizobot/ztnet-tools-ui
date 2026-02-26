@@ -32,16 +32,24 @@ export type UseMembersDeps = {
   apiPost: <TBody, TData>(path: string, body: TBody) => Promise<ApiResult<TData>>;
 };
 
+export type LoadMembersResult = {
+  rows: Array<{ memid: string; member: Member }>;
+  error: ApiResult<unknown> | null;
+};
+
 export async function loadMembers(
   nwid: string,
   deps: UseMembersDeps,
-): Promise<Array<{ memid: string; member: Member }>> {
+): Promise<LoadMembersResult> {
   const res = await deps.apiGet<Record<string, Member>>(`/controller/network/${nwid}/member`);
   if (!res?.ok) {
-    return [];
+    return { rows: [], error: res };
   }
 
-  return Object.entries(res.data ?? {}).map(([memid, member]) => ({ memid, member }));
+  return {
+    rows: Object.entries(res.data ?? {}).map(([memid, member]) => ({ memid, member })),
+    error: null,
+  };
 }
 
 export async function loadMemberDetail(
