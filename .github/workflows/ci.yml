@@ -48,7 +48,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx vitest run --coverage
+      - name: Run tests with enforced coverage thresholds
+        run: npx vitest run --coverage
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true

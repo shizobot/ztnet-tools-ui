@@ -91,6 +91,17 @@ npm run test:coverage
 - `npm run typecheck` runs TypeScript checks without emitting files.
 - `npm run test` runs Vitest once.
 - `npm run test:coverage` runs Vitest with coverage reporting (used by CI/Codecov).
+- Coverage quality gate is enforced in `vitest.config.ts` with minimum global thresholds:
+  - Statements: **65%**
+  - Branches: **75%**
+  - Functions: **50%**
+  - Lines: **65%**
+
+## CI quality gates
+
+The CI workflow (`.github/workflows/ci.yml`) runs `npx vitest run --coverage`, and the run fails automatically if coverage drops below the configured Vitest thresholds.
+
+> Note: thresholds are intentionally set to realistic starter values so the repository remains stable while migration continues. They should be raised incrementally in follow-up tasks after closing obvious testing gaps.
 
 ## Panel/route migration matrix
 
