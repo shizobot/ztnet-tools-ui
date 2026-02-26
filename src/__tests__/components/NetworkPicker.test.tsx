@@ -43,7 +43,7 @@ describe('NetworkPicker', () => {
       target: { value: 'abc' },
     });
 
-    expect(screen.getByRole('button', { name: /AbC123 Office/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /AbC123 Office/i })).not.toBeNull();
     expect(screen.queryByRole('button', { name: /def456 Home/i })).toBeNull();
   });
 });

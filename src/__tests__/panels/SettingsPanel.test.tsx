@@ -54,9 +54,9 @@ describe('SettingsPanel', () => {
       'http://controller.local:9993',
     );
     expect((screen.getByLabelText('Auth Token') as HTMLInputElement).value).toBe('persisted-token');
-    expect((screen.getByLabelText('Remember token on this device') as HTMLInputElement).checked).toBe(
-      true,
-    );
+    expect(
+      (screen.getByLabelText('Remember token on this device') as HTMLInputElement).checked,
+    ).toBe(true);
   });
 
   it('does not restore token when remember-token is disabled', () => {
@@ -77,8 +77,8 @@ describe('SettingsPanel', () => {
       'http://controller.local:9993',
     );
     expect((screen.getByLabelText('Auth Token') as HTMLInputElement).value).toBe('');
-    expect((screen.getByLabelText('Remember token on this device') as HTMLInputElement).checked).toBe(
-      false,
-    );
+    expect(
+      (screen.getByLabelText('Remember token on this device') as HTMLInputElement).checked,
+    ).toBe(false);
   });
 });
