@@ -82,8 +82,10 @@ describe('NetworkConfigPanel', () => {
     fireEvent.change(dnsInputs[1], { target: { value: '8.8.8.8' } });
     expect(useAppStore.getState().dnsServers).toEqual(['1.1.1.1', '8.8.8.8']);
 
-    const removeButtons = screen.getAllByRole('button', { name: 'Remove' });
-    fireEvent.click(removeButtons[2]);
+    const dnsRemoveButtons = dnsInputs.map((input) =>
+      input.closest('.route-row')?.querySelector('button') as HTMLButtonElement,
+    );
+    fireEvent.click(dnsRemoveButtons[1]);
 
     expect(useAppStore.getState().dnsServers).toEqual(['1.1.1.1']);
   });

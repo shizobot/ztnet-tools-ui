@@ -17,6 +17,10 @@ export function NetworkConfigPanel() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPrivate, setIsPrivate] = useState(true);
+  const [enableBroadcast, setEnableBroadcast] = useState(false);
+  const [multicastLimit, setMulticastLimit] = useState(32);
+  const [v4Mode, setV4Mode] = useState<'zt' | 'none'>('zt');
+  const [dnsDomain, setDnsDomain] = useState('');
   const [v6State, setV6State] = useState<V6State>(INITIAL_V6_STATE);
 
   const { apiGet, apiPost, apiDelete } = useApiClient();
@@ -30,21 +34,32 @@ export function NetworkConfigPanel() {
   const updateConfig = useCallback(
     (
       partial: Partial<{
+        pools: typeof store.pools;
         routes: typeof store.routes;
+        v6pools: typeof store.v6pools;
+        v6routes: typeof store.v6routes;
         dnsServers: typeof store.dnsServers;
+        dnsDomain: typeof store.dnsDomain;
       }>,
     ) => {
       setNetworkConfig({
         memberIps: store.memberIps,
-        pools: store.pools,
+        pools: partial.pools ?? store.pools,
         routes: partial.routes ?? store.routes,
-        v6pools: store.v6pools,
-        v6routes: store.v6routes,
+        v6pools: partial.v6pools ?? store.v6pools,
+        v6routes: partial.v6routes ?? store.v6routes,
         dnsServers: partial.dnsServers ?? store.dnsServers,
-        dnsDomain: store.dnsDomain,
+        dnsDomain: partial.dnsDomain ?? store.dnsDomain,
       });
     },
     [setNetworkConfig, store],
+  );
+
+  const updatePools = useCallback(
+    (updater: (pools: typeof store.pools) => typeof store.pools) => {
+      updateConfig({ pools: updater(store.pools) });
+    },
+    [store.pools, updateConfig],
   );
 
   const updateRoutes = useCallback(
@@ -59,6 +74,20 @@ export function NetworkConfigPanel() {
       updateConfig({ dnsServers: updater(store.dnsServers) });
     },
     [store.dnsServers, updateConfig],
+  );
+
+  const updateV6Pools = useCallback(
+    (updater: (v6pools: typeof store.v6pools) => typeof store.v6pools) => {
+      updateConfig({ v6pools: updater(store.v6pools) });
+    },
+    [store.v6pools, updateConfig],
+  );
+
+  const updateV6Routes = useCallback(
+    (updater: (v6routes: typeof store.v6routes) => typeof store.v6routes) => {
+      updateConfig({ v6routes: updater(store.v6routes) });
+    },
+    [store.v6routes, updateConfig],
   );
 
   const load = useCallback(async () => {
@@ -77,6 +106,10 @@ export function NetworkConfigPanel() {
     setName((cfg.raw.name as string) || '');
     setDescription((cfg.raw.description as string) || (cfg.raw.desc as string) || '');
     setIsPrivate(cfg.raw.private !== false);
+    setEnableBroadcast(cfg.raw.enableBroadcast === true);
+    setMulticastLimit(cfg.raw.multicastLimit ?? 32);
+    setV4Mode(cfg.raw.v4AssignMode === 'none' ? 'none' : cfg.raw.v4AssignMode?.zt === false ? 'none' : 'zt');
+    setDnsDomain(cfg.dnsDomain);
     setV6State({ ...INITIAL_V6_STATE, ...(cfg.raw.v6AssignMode || {}) });
   }, [loadNetworkConfig, nwid, setNetworkConfig, setSelectedNwid]);
 
@@ -102,6 +135,67 @@ export function NetworkConfigPanel() {
           onChange={(e) => setDescription(e.target.value)}
         />
         <Toggle checked={isPrivate} onChange={setIsPrivate} label="Private" />
+        <Toggle checked={enableBroadcast} onChange={setEnableBroadcast} label="Enable broadcast" />
+        <label htmlFor="multicastLimit">Multicast recipient limit</label>
+        <input
+          id="multicastLimit"
+          type="number"
+          min={0}
+          value={multicastLimit}
+          onChange={(e) => setMulticastLimit(Number(e.target.value) || 0)}
+        />
+        <label htmlFor="v4Mode">IPv4 assignment mode</label>
+        <select id="v4Mode" value={v4Mode} onChange={(e) => setV4Mode(e.target.value as 'zt' | 'none')}>
+          <option value="zt">ZeroTier managed</option>
+          <option value="none">None</option>
+        </select>
+        <label htmlFor="dnsDomain">DNS domain</label>
+        <input
+          id="dnsDomain"
+          value={dnsDomain}
+          onChange={(e) => {
+            const value = e.target.value;
+            setDnsDomain(value);
+            updateConfig({ dnsDomain: value });
+          }}
+        />
+
+        {store.pools.map((pool, i) => (
+          <div className="route-row" key={`${pool.ipRangeStart}-${pool.ipRangeEnd}-${i}`}>
+            <input
+              placeholder="Pool start"
+              value={pool.ipRangeStart}
+              onChange={(e) =>
+                updatePools((pools) =>
+                  pools.map((item, idx) =>
+                    idx === i ? { ...item, ipRangeStart: e.target.value } : item,
+                  ),
+                )
+              }
+            />
+            <input
+              placeholder="Pool end"
+              value={pool.ipRangeEnd}
+              onChange={(e) =>
+                updatePools((pools) =>
+                  pools.map((item, idx) =>
+                    idx === i ? { ...item, ipRangeEnd: e.target.value } : item,
+                  ),
+                )
+              }
+            />
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => updatePools((pools) => pools.filter((_, idx) => idx !== i))}>
+              Remove
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="btn"
+          onClick={() => updatePools((pools) => [...pools, { ipRangeStart: '', ipRangeEnd: '' }])}
+        >
+          Add IPv4 Pool
+        </button>
         <Toggle
           checked={v6State.zt}
           onChange={(v) => setV6State((p) => ({ ...p, zt: v }))}
@@ -139,6 +233,65 @@ export function NetworkConfigPanel() {
         >
           Add Route
         </button>
+        {store.v6pools.map((pool, i) => (
+          <div className="route-row" key={`${pool.ipRangeStart}-${pool.ipRangeEnd}-${i}`}>
+            <input
+              placeholder="IPv6 pool start"
+              value={pool.ipRangeStart}
+              onChange={(e) =>
+                updateV6Pools((v6pools) =>
+                  v6pools.map((item, idx) =>
+                    idx === i ? { ...item, ipRangeStart: e.target.value } : item,
+                  ),
+                )
+              }
+            />
+            <input
+              placeholder="IPv6 pool end"
+              value={pool.ipRangeEnd}
+              onChange={(e) =>
+                updateV6Pools((v6pools) =>
+                  v6pools.map((item, idx) =>
+                    idx === i ? { ...item, ipRangeEnd: e.target.value } : item,
+                  ),
+                )
+              }
+            />
+            <button type="button" className="btn btn-danger btn-sm" onClick={() => updateV6Pools((v6pools) => v6pools.filter((_, idx) => idx !== i))}>
+              Remove
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="btn"
+          onClick={() =>
+            updateV6Pools((v6pools) => [...v6pools, { ipRangeStart: '', ipRangeEnd: '' }])
+          }
+        >
+          Add IPv6 Pool
+        </button>
+        {store.v6routes.map((route, i) => (
+          <RouteRow
+            key={`${route.target}-${i}`}
+            value={{ target: route.target, via: route.via || '' }}
+            onChange={(next) =>
+              updateV6Routes((v6routes) =>
+                v6routes.map((r, idx) =>
+                  idx === i ? { target: next.target, via: next.via || undefined } : r,
+                ),
+              )
+            }
+            onRemove={() => updateV6Routes((v6routes) => v6routes.filter((_, idx) => idx !== i))}
+          />
+        ))}
+        <button
+          type="button"
+          className="btn"
+          onClick={() => updateV6Routes((v6routes) => [...v6routes, { target: '', via: '' }])}
+        >
+          Add IPv6 Route
+        </button>
         {store.dnsServers.map((dns, i) => (
           <DnsServerRow
             key={`${dns}-${i}`}
@@ -167,15 +320,15 @@ export function NetworkConfigPanel() {
               name,
               description,
               isPrivate,
-              enableBroadcast: false,
-              multicastLimit: 32,
-              v4Mode: 'zt',
+              enableBroadcast,
+              multicastLimit,
+              v4Mode,
               v6AssignMode: v6State,
               pools: store.pools,
               v6pools: store.v6pools,
               routes: store.routes,
               v6routes: store.v6routes,
-              dnsDomain: store.dnsDomain,
+              dnsDomain,
               dnsServers: store.dnsServers,
             });
             toast(
