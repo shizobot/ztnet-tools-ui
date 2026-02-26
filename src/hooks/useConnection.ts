@@ -1,50 +1,78 @@
-import { useCallback } from 'react';
+export type ConnectionPrefs = {
+  host: string;
+  token: string;
+};
 
-import { ztGet, ZtApiError } from '../api/ztApi';
-import { useAppStore } from '../store/appStore';
+export type ConnectionState = ConnectionPrefs & {
+  nodeId: string;
+  connected: boolean;
+};
 
-const PREFS_KEY = 'ztnet-tools-prefs';
+export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
 
-interface ControllerStatusResponse {
-  online: boolean;
+export type StatusPayload = { address?: string };
+
+export type UseConnectionDeps = {
+  apiGet: (path: string) => Promise<ApiResult<StatusPayload>>;
+  refreshDashboard: () => Promise<void> | void;
+};
+
+const HOST_KEY = 'ztnet_host';
+const TOKEN_KEY = 'ztnet_token';
+
+export function savePrefs(state: ConnectionPrefs): void {
+  try {
+    localStorage.setItem(HOST_KEY, state.host);
+    localStorage.setItem(TOKEN_KEY, state.token);
+  } catch {
+    // no-op: mirror original behavior
+  }
 }
 
-export function useConnection() {
-  const host = useAppStore((s) => s.host);
-  const token = useAppStore((s) => s.token);
-  const nodeId = useAppStore((s) => s.nodeId);
-  const setConnectionPrefs = useAppStore((s) => s.setConnectionPrefs);
-  const setConnected = useAppStore((s) => s.setConnected);
+export function loadPrefs(): Partial<ConnectionPrefs> {
+  try {
+    const host = localStorage.getItem(HOST_KEY) ?? '';
+    const token = localStorage.getItem(TOKEN_KEY) ?? '';
+    return {
+      ...(host ? { host } : {}),
+      ...(token ? { token } : {}),
+    };
+  } catch {
+    return {};
+  }
+}
 
-  const savePrefs = useCallback(() => {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ host, token, nodeId }));
-  }, [host, token, nodeId]);
+export async function testConnection(
+  input: ConnectionPrefs,
+  deps: UseConnectionDeps,
+): Promise<ConnectionState> {
+  const nextState: ConnectionState = {
+    host: input.host,
+    token: input.token,
+    nodeId: '',
+    connected: false,
+  };
 
-  const loadPrefs = useCallback(() => {
-    const raw = localStorage.getItem(PREFS_KEY);
-    if (!raw) {
-      return;
-    }
-    const parsed = JSON.parse(raw) as { host: string; token: string; nodeId: string };
-    setConnectionPrefs(parsed);
-  }, [setConnectionPrefs]);
+  if (!input.token.trim()) {
+    return nextState;
+  }
 
-  const testConnection = useCallback(async () => {
-    try {
-      const result = await ztGet<ControllerStatusResponse>({
-        path: '/controller/status',
-        config: { host, token },
-      });
-      setConnected(Boolean(result.online));
-      return result.online;
-    } catch (error) {
-      if (error instanceof ZtApiError) {
-        setConnected(false);
-        return false;
-      }
-      throw error;
-    }
-  }, [host, token, setConnected]);
+  const res = await deps.apiGet('/status');
+  if (res?.ok) {
+    nextState.nodeId = res.data?.address ?? '';
+    nextState.connected = true;
+    savePrefs({ host: input.host, token: input.token });
+    await deps.refreshDashboard();
+    return nextState;
+  }
 
-  return { savePrefs, loadPrefs, testConnection };
+  return nextState;
+}
+
+export function useConnection(deps: UseConnectionDeps) {
+  return {
+    testConnection: (input: ConnectionPrefs) => testConnection(input, deps),
+    savePrefs,
+    loadPrefs,
+  };
 }

@@ -1,42 +1,82 @@
-import { useCallback, useMemo } from 'react';
+export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
 
-import { ztGet } from '../api/ztApi';
-import { useAppStore } from '../store/appStore';
-import type { ZtNetwork } from '../types/zt';
+export type Network = {
+  id: string;
+  name?: string;
+  private?: boolean;
+  [key: string]: unknown;
+};
 
-export function useNetworks() {
-  const host = useAppStore((s) => s.host);
-  const token = useAppStore((s) => s.token);
-  const networks = useAppStore((s) => s.networks);
-  const setNetworks = useAppStore((s) => s.setNetworks);
+export type MemberSummary = {
+  authorized?: boolean;
+};
 
-  const loadNetworksData = useCallback(async () => {
-    const response = await ztGet<Record<string, ZtNetwork>>({
-      path: '/controller/network',
-      config: { host, token },
+export type NetworksData = {
+  networks: Network[];
+  authorizedCount: number;
+  pendingCount: number;
+};
+
+export type UseNetworksDeps = {
+  apiGet: <T>(path: string) => Promise<ApiResult<T>>;
+};
+
+export async function loadNetworksData(deps: UseNetworksDeps): Promise<NetworksData> {
+  const initial: NetworksData = {
+    networks: [],
+    authorizedCount: 0,
+    pendingCount: 0,
+  };
+
+  const res = await deps.apiGet<string[]>('/controller/network');
+  if (!res?.ok) {
+    return initial;
+  }
+
+  const ids = res.data ?? [];
+  const networks: Network[] = [];
+  for (const id of ids) {
+    const detail = await deps.apiGet<Record<string, unknown>>(`/controller/network/${id}`);
+    networks.push({
+      id,
+      name: (detail?.data?.name as string | undefined) ?? '',
+      private: (detail?.data?.private as boolean | undefined) ?? true,
+      ...(detail?.data ?? {}),
     });
-    setNetworks(Object.values(response));
-  }, [host, token, setNetworks]);
+  }
 
-  const filterNetworks = useCallback(
-    (query: string): ZtNetwork[] => {
-      const needle = query.trim().toLowerCase();
-      if (!needle) {
-        return networks;
-      }
-      return networks.filter((network) => {
-        const id = network.id.toLowerCase();
-        const name = (network.name ?? '').toLowerCase();
-        return id.includes(needle) || name.includes(needle);
-      });
-    },
-    [networks],
+  let authorizedCount = 0;
+  let pendingCount = 0;
+  for (const network of networks.slice(0, 6)) {
+    const membersRes = await deps.apiGet<Record<string, MemberSummary>>(
+      `/controller/network/${network.id}/member`,
+    );
+    if (!membersRes?.ok) {
+      continue;
+    }
+
+    const members = Object.values(membersRes.data ?? {});
+    authorizedCount += members.filter((member) => member.authorized).length;
+    pendingCount += members.filter((member) => !member.authorized).length;
+  }
+
+  return { networks, authorizedCount, pendingCount };
+}
+
+export function filterNetworks(networks: Network[], query: string): Network[] {
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    return networks;
+  }
+
+  return networks.filter(
+    (network) => network.id.includes(q) || (network.name ?? '').toLowerCase().includes(q),
   );
+}
 
-  const sortedNetworks = useMemo(
-    () => [...networks].sort((a, b) => (a.name ?? a.id).localeCompare(b.name ?? b.id)),
-    [networks],
-  );
-
-  return { networks: sortedNetworks, loadNetworksData, filterNetworks };
+export function useNetworks(deps: UseNetworksDeps) {
+  return {
+    loadNetworksData: () => loadNetworksData(deps),
+    filterNetworks,
+  };
 }

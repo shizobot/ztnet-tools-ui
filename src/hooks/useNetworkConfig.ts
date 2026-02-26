@@ -1,78 +1,118 @@
-import { useCallback } from 'react';
+export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
 
-import { ztDelete, ztGet, ztPost } from '../api/ztApi';
-import { useAppStore } from '../store/appStore';
-import type { ZtIpAssignmentPool, ZtRoute } from '../types/zt';
+export type NetworkConfig = {
+  name?: string;
+  description?: string;
+  desc?: string;
+  private?: boolean;
+  enableBroadcast?: boolean;
+  multicastLimit?: number;
+  v4AssignMode?: { zt?: boolean } | 'zt' | 'none';
+  v6AssignMode?: { zt?: boolean; rfc4193?: boolean; '6plane'?: boolean };
+  ipAssignmentPools?: Array<{ ipRangeStart: string; ipRangeEnd: string }>;
+  routes?: Array<{ target: string; via?: string | null }>;
+  dns?: { domain?: string; servers?: string[] };
+};
 
-interface NetworkConfigResponse {
-  ipAssignmentPools?: ZtIpAssignmentPool[];
-  routes?: ZtRoute[];
-  v6AssignMode?: {
-    rfc4193?: {
-      from?: string;
-      to?: string;
-    };
-  };
-  dns?: {
-    servers?: string[];
-    domain?: string;
+export type ParsedNetworkConfig = {
+  selectedNwid: string;
+  raw: NetworkConfig;
+  pools: Array<{ ipRangeStart: string; ipRangeEnd: string }>;
+  v6pools: Array<{ ipRangeStart: string; ipRangeEnd: string }>;
+  routes: Array<{ target: string; via?: string | null }>;
+  v6routes: Array<{ target: string; via?: string | null }>;
+  dnsServers: string[];
+  dnsDomain: string;
+};
+
+export type SaveNetworkConfigInput = {
+  nwid: string;
+  name: string;
+  description: string;
+  isPrivate: boolean;
+  enableBroadcast: boolean;
+  multicastLimit: number;
+  v4Mode: 'zt' | 'none';
+  v6AssignMode: { zt: boolean; rfc4193: boolean; '6plane': boolean };
+  pools: Array<{ ipRangeStart: string; ipRangeEnd: string }>;
+  v6pools: Array<{ ipRangeStart: string; ipRangeEnd: string }>;
+  routes: Array<{ target: string; via?: string | null }>;
+  v6routes: Array<{ target: string; via?: string | null }>;
+  dnsDomain: string;
+  dnsServers: string[];
+};
+
+export type UseNetworkConfigDeps = {
+  apiGet: <T>(path: string) => Promise<ApiResult<T>>;
+  apiPost: <TBody, TData>(path: string, body: TBody) => Promise<ApiResult<TData>>;
+  apiDelete: <T>(path: string) => Promise<ApiResult<T>>;
+};
+
+export async function loadNetworkConfig(
+  nwid: string,
+  deps: UseNetworkConfigDeps,
+): Promise<ParsedNetworkConfig | null> {
+  if (!nwid.trim()) {
+    return null;
+  }
+
+  const res = await deps.apiGet<NetworkConfig>(`/controller/network/${nwid}`);
+  if (!res?.ok || !res.data) {
+    return null;
+  }
+
+  const allPools = res.data.ipAssignmentPools ?? [];
+  const allRoutes = res.data.routes ?? [];
+
+  return {
+    selectedNwid: nwid,
+    raw: res.data,
+    pools: allPools.filter((pool) => !pool.ipRangeStart?.includes(':')),
+    v6pools: allPools.filter((pool) => pool.ipRangeStart?.includes(':')),
+    routes: allRoutes.filter((route) => !route.target?.includes(':')),
+    v6routes: allRoutes.filter((route) => route.target?.includes(':')),
+    dnsServers: res.data.dns?.servers ? [...res.data.dns.servers] : [],
+    dnsDomain: res.data.dns?.domain ?? '',
   };
 }
 
-interface SaveNetworkConfigRequest {
-  config: NetworkConfigResponse;
-}
-
-export function useNetworkConfig() {
-  const host = useAppStore((s) => s.host);
-  const token = useAppStore((s) => s.token);
-  const selectedNwid = useAppStore((s) => s.selectedNwid);
-  const setNetworkConfig = useAppStore((s) => s.setNetworkConfig);
-  const resetNetworkConfig = useAppStore((s) => s.resetNetworkConfig);
-
-  const loadNetworkConfig = useCallback(async () => {
-    const response = await ztGet<NetworkConfigResponse>({
-      path: `/controller/network/${selectedNwid}`,
-      config: { host, token },
-    });
-
-    setNetworkConfig({
-      memberIps: [],
-      pools: response.ipAssignmentPools ?? [],
-      routes: response.routes ?? [],
-      v6pools:
-        response.v6AssignMode?.rfc4193?.from && response.v6AssignMode.rfc4193.to
-          ? [
-              {
-                ipRangeStart: response.v6AssignMode.rfc4193.from,
-                ipRangeEnd: response.v6AssignMode.rfc4193.to,
-              },
-            ]
-          : [],
-      v6routes: [],
-      dnsServers: response.dns?.servers ?? [],
-      dnsDomain: response.dns?.domain ?? '',
-    });
-  }, [host, token, selectedNwid, setNetworkConfig]);
-
-  const saveNetworkConfig = useCallback(
-    async (payload: SaveNetworkConfigRequest) => {
-      await ztPost<NetworkConfigResponse, SaveNetworkConfigRequest>({
-        path: `/controller/network/${selectedNwid}`,
-        config: { host, token },
-        body: payload,
-      });
+export async function saveNetworkConfig(
+  input: SaveNetworkConfigInput,
+  deps: UseNetworkConfigDeps,
+): Promise<ApiResult<NetworkConfig>> {
+  const body = {
+    name: input.name,
+    description: input.description,
+    private: input.isPrivate,
+    enableBroadcast: input.enableBroadcast,
+    multicastLimit: input.multicastLimit || 32,
+    v4AssignMode: input.v4Mode === 'zt' ? { zt: true } : { zt: false },
+    v6AssignMode: {
+      zt: input.v6AssignMode.zt,
+      rfc4193: input.v6AssignMode.rfc4193,
+      '6plane': input.v6AssignMode['6plane'],
     },
-    [host, token, selectedNwid],
-  );
+    ipAssignmentPools: [...input.pools, ...input.v6pools],
+    routes: [...input.routes, ...input.v6routes],
+    dns: input.dnsDomain
+      ? { domain: input.dnsDomain, servers: input.dnsServers }
+      : { domain: '', servers: [] },
+  };
 
-  const deleteNetwork = useCallback(async () => {
-    await ztDelete<void>({
-      path: `/controller/network/${selectedNwid}`,
-      config: { host, token },
-    });
-    resetNetworkConfig();
-  }, [host, token, selectedNwid, resetNetworkConfig]);
+  return deps.apiPost<typeof body, NetworkConfig>(`/controller/network/${input.nwid}`, body);
+}
 
-  return { loadNetworkConfig, saveNetworkConfig, deleteNetwork };
+export async function deleteNetwork(
+  nwid: string,
+  deps: UseNetworkConfigDeps,
+): Promise<ApiResult<unknown>> {
+  return deps.apiDelete(`/controller/network/${nwid}`);
+}
+
+export function useNetworkConfig(deps: UseNetworkConfigDeps) {
+  return {
+    loadNetworkConfig: (nwid: string) => loadNetworkConfig(nwid, deps),
+    saveNetworkConfig: (input: SaveNetworkConfigInput) => saveNetworkConfig(input, deps),
+    deleteNetwork: (nwid: string) => deleteNetwork(nwid, deps),
+  };
 }

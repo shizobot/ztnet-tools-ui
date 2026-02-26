@@ -1,46 +1,115 @@
-import { useCallback } from 'react';
+export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
 
-import { ztGet, ztPost } from '../api/ztApi';
-import { useAppStore } from '../store/appStore';
-
-export interface MemberRecord {
-  id: string;
+export type Member = {
+  id?: string;
   name?: string;
+  authorized?: boolean;
+  activeBridge?: boolean;
   ipAssignments?: string[];
-  [key: string]: unknown;
+  capabilities?: number[];
+  tags?: [number, number][];
+};
+
+export type MemberDetail = Member & {
+  memberId: string;
+  raw: Member;
+};
+
+export type SaveMemberInput = {
+  nwid: string;
+  memid: string;
+  name: string;
+  authorized: boolean;
+  activeBridge: boolean;
+  ipAssignments: string[];
+  capabilitiesText: string;
+  tagsText: string;
+};
+
+export type UseMembersDeps = {
+  apiGet: <T>(path: string) => Promise<ApiResult<T>>;
+  apiPost: <TBody, TData>(path: string, body: TBody) => Promise<ApiResult<TData>>;
+};
+
+export async function loadMembers(
+  nwid: string,
+  deps: UseMembersDeps,
+): Promise<Array<{ memid: string; member: Member }>> {
+  const res = await deps.apiGet<Record<string, Member>>(`/controller/network/${nwid}/member`);
+  if (!res?.ok) {
+    return [];
+  }
+
+  return Object.entries(res.data ?? {}).map(([memid, member]) => ({ memid, member }));
 }
 
-export function useMembers() {
-  const host = useAppStore((s) => s.host);
-  const token = useAppStore((s) => s.token);
-  const selectedNwid = useAppStore((s) => s.selectedNwid);
+export async function loadMemberDetail(
+  nwid: string,
+  memid: string,
+  deps: UseMembersDeps,
+): Promise<MemberDetail | null> {
+  if (!nwid.trim() || !memid.trim()) {
+    return null;
+  }
 
-  const loadMembers = useCallback(async (): Promise<MemberRecord[]> => {
-    const response = await ztGet<Record<string, MemberRecord>>({
-      path: `/controller/network/${selectedNwid}/member`,
-      config: { host, token },
+  const res = await deps.apiGet<Member>(`/controller/network/${nwid}/member/${memid}`);
+  if (!res?.ok || !res.data) {
+    return null;
+  }
+
+  return {
+    memberId: res.data.id ?? memid,
+    name: res.data.name ?? '',
+    authorized: !!res.data.authorized,
+    activeBridge: !!res.data.activeBridge,
+    ipAssignments: res.data.ipAssignments ?? [],
+    capabilities: res.data.capabilities ?? [],
+    tags: res.data.tags ?? [],
+    raw: res.data,
+  };
+}
+
+const parseTags = (value: string): [number, number][] =>
+  value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((entry): [number, number] => {
+      const [id, rawVal] = entry.split('=');
+      return [Number.parseInt(id, 10), Number.parseInt(rawVal || '0', 10)];
     });
-    return Object.values(response);
-  }, [host, token, selectedNwid]);
 
-  const loadMemberDetail = useCallback(
-    async (memberId: string): Promise<MemberRecord> =>
-      ztGet<MemberRecord>({
-        path: `/controller/network/${selectedNwid}/member/${memberId}`,
-        config: { host, token },
-      }),
-    [host, token, selectedNwid],
+const parseCapabilities = (value: string): number[] =>
+  value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(Number)
+    .filter((n) => !Number.isNaN(n));
+
+export async function saveMember(
+  input: SaveMemberInput,
+  deps: UseMembersDeps,
+): Promise<ApiResult<Member>> {
+  const body = {
+    name: input.name,
+    authorized: input.authorized,
+    activeBridge: input.activeBridge,
+    ipAssignments: input.ipAssignments,
+    capabilities: parseCapabilities(input.capabilitiesText),
+    tags: parseTags(input.tagsText),
+  };
+
+  return deps.apiPost<typeof body, Member>(
+    `/controller/network/${input.nwid}/member/${input.memid}`,
+    body,
   );
+}
 
-  const saveMember = useCallback(
-    async (memberId: string, body: MemberRecord): Promise<MemberRecord> =>
-      ztPost<MemberRecord, MemberRecord>({
-        path: `/controller/network/${selectedNwid}/member/${memberId}`,
-        config: { host, token },
-        body,
-      }),
-    [host, token, selectedNwid],
-  );
-
-  return { loadMembers, loadMemberDetail, saveMember };
+export function useMembers(deps: UseMembersDeps) {
+  return {
+    loadMembers: (nwid: string) => loadMembers(nwid, deps),
+    loadMemberDetail: (nwid: string, memid: string) => loadMemberDetail(nwid, memid, deps),
+    saveMember: (input: SaveMemberInput) => saveMember(input, deps),
+  };
 }
