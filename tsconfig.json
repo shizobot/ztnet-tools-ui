@@ -1,26 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "ESNext",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "noEmit": true,
     "strict": true,
-    "skipLibCheck": true,
-    "types": [
-      "node"
-    ]
+    "lib": ["ES2022", "DOM"],
+    "types": ["vitest/globals"]
   },
-  "include": [
-    "src",
-    "vite.config.ts",
-    "vitest.config.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }
