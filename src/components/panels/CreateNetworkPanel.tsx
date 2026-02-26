@@ -43,7 +43,7 @@ export function CreateNetworkPanel() {
 
   const createNetwork = async () => {
     if (!hasNodeId) {
-      toast('Connect in Settings first: Node ID is required.', 'warn');
+      toast('Connect in Settings first: Node ID is required.', 'err');
       return;
     }
 

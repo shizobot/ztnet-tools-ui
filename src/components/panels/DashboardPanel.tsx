@@ -1,24 +1,37 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetworks } from '../../hooks/useNetworks';
 import { useAppStore } from '../../store/appStore';
+import { EmptyState, Notice } from '../ui';
 
 export function DashboardPanel() {
   const navigate = useNavigate();
   const { nodeId, connected, networks, setNetworks } = useAppStore();
   const [authorized, setAuthorized] = useState(0);
   const [pending, setPending] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { apiGet } = useApiClient();
   const { loadNetworksData } = useNetworks({ apiGet });
 
   const refreshDashboard = useCallback(async () => {
     if (!connected) return;
-    const data = await loadNetworksData();
-    setNetworks(data.networks);
-    setAuthorized(data.authorizedCount);
-    setPending(data.pendingCount);
+
+    setIsLoading(true);
+    setError(null);
+
+    const result = await loadNetworksData();
+    setNetworks(result.data.networks);
+    setAuthorized(result.data.authorizedCount);
+    setPending(result.data.pendingCount);
+    if (result.error) {
+      setError(formatApiError(result.error, 'Failed to load dashboard data'));
+    }
+
+    setIsLoading(false);
   }, [connected, loadNetworksData, setNetworks]);
 
   useEffect(() => {
@@ -36,6 +49,7 @@ export function DashboardPanel() {
           className="btn btn-ghost btn-sm"
           onClick={() => void refreshDashboard()}
           type="button"
+          disabled={isLoading}
         >
           ↻ Refresh
         </button>
@@ -69,14 +83,24 @@ export function DashboardPanel() {
             ⊕ New
           </button>
         </div>
-        <div>
-          {networks.slice(0, 8).map((nw) => (
-            <div key={nw.id} className="route-row">
-              <span>{nw.id}</span>
-              <span>{String(nw.name || 'unnamed')}</span>
-            </div>
-          ))}
-        </div>
+        {error ? (
+          <Notice kind="error">{error}</Notice>
+        ) : networks.length === 0 && !isLoading ? (
+          <EmptyState
+            title="No networks yet"
+            description="Create your first network to get started"
+            icon="⬡"
+          />
+        ) : (
+          <div>
+            {networks.slice(0, 8).map((nw) => (
+              <div key={nw.id} className="route-row">
+                <span>{nw.id}</span>
+                <span>{String(nw.name || 'unnamed')}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

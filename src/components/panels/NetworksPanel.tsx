@@ -1,20 +1,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
 import { useNetworks } from '../../hooks/useNetworks';
 import { useAppStore } from '../../store/appStore';
+import { EmptyState, Notice } from '../ui';
 
 export function NetworksPanel() {
   const navigate = useNavigate();
   const { networks, setNetworks, setSelectedNwid } = useAppStore();
   const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { apiGet } = useApiClient();
   const { loadNetworksData, filterNetworks } = useNetworks({ apiGet });
 
   const loadNetworks = useCallback(async () => {
-    const data = await loadNetworksData();
-    setNetworks(data.networks);
+    setIsLoading(true);
+    setError(null);
+
+    const result = await loadNetworksData();
+    setNetworks(result.data.networks);
+    if (result.error) {
+      setError(formatApiError(result.error, 'Failed to load networks'));
+    }
+
+    setIsLoading(false);
   }, [loadNetworksData, setNetworks]);
 
   useEffect(() => {
@@ -38,6 +50,7 @@ export function NetworksPanel() {
             className="btn btn-ghost btn-sm"
             type="button"
             onClick={() => void loadNetworks()}
+            disabled={isLoading}
           >
             ↻ Refresh
           </button>
@@ -59,20 +72,30 @@ export function NetworksPanel() {
         />
       </div>
       <div className="card">
-        {filtered.map((nw) => (
-          <button
-            type="button"
-            key={nw.id}
-            className="route-row"
-            onClick={() => {
-              setSelectedNwid(nw.id);
-              navigate(`/networks/${nw.id}`);
-            }}
-          >
-            <span>{nw.id}</span>
-            <span>{String(nw.name || 'unnamed')}</span>
-          </button>
-        ))}
+        {error ? (
+          <Notice kind="error">{error}</Notice>
+        ) : filtered.length === 0 && !isLoading ? (
+          <EmptyState
+            title={query ? 'No networks match your filter' : 'No networks found'}
+            description={query ? 'Try changing your filter criteria' : 'Create your first ZeroTier network'}
+            icon={query ? '⬡' : '⬢'}
+          />
+        ) : (
+          filtered.map((nw) => (
+            <button
+              type="button"
+              key={nw.id}
+              className="route-row"
+              onClick={() => {
+                setSelectedNwid(nw.id);
+                navigate(`/networks/${nw.id}`);
+              }}
+            >
+              <span>{nw.id}</span>
+              <span>{String(nw.name || 'unnamed')}</span>
+            </button>
+          ))
+        )}
       </div>
     </section>
   );
