@@ -1,0 +1,31 @@
+/* Extracted design tokens */
+
+
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #06090d;
+  --bg2:      #0a0f16;
+  --bg3:      #0f1621;
+  --bg4:      #141d2b;
+  --bg5:      #192336;
+  --border:   #1e3048;
+  --border2:  #2a4060;
+  --text:     #e0eef8;
+  --text2:    #90b8d0;
+  --text3:    #5a8aaa;
+  --accent:   #00ccff;
+  --accent2:  #0088bb;
+  --green:    #00e8a0;
+  --red:      #ff3d55;
+  --yellow:   #ffcc00;
+  --orange:   #ff8c42;
+  --purple:   #9d6fff;
+  --r:        8px;
+  --r-sm:     5px;
+  --sidebar-w: 230px;
+  --header-h: 58px;
+  --mob-nav-h: 64px;
+  --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+}

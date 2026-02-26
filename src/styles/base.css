@@ -1,0 +1,185 @@
+/* Extracted reset and global styles */
+
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
+
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100%;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,204,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,204,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+/* Vignette — subtle edge-only darkening */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 120% 100% at 50% 20%, transparent 60%, rgba(6,9,13,0.25) 100%);
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════ */
+.flex        { display: flex; }
+.flex-col    { flex-direction: column; }
+.items-ctr   { align-items: center; }
+.gap-6       { gap: 6px; }
+.gap-8       { gap: 8px; }
+.gap-12      { gap: 12px; }
+.ml-auto     { margin-left: auto; }
+.mb-0        { margin-bottom: 0 !important; }
+.mb-8        { margin-bottom: 8px; }
+.mb-14       { margin-bottom: 14px; }
+.mt-12       { margin-top: 12px; }
+.hidden      { display: none !important; }
+.w-full      { width: 100%; }
+.copy-btn {
+  background: none; border: none; color: #6a9ab8;
+  cursor: pointer; font-size: 12px; padding: 2px 6px;
+  border-radius: var(--r-sm); transition: color var(--transition);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.copy-btn:hover { color: var(--accent); }
+
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR GLOBAL
+═══════════════════════════════════════════ */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border2); border-radius: 3px; }
+
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — 768px
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root {
+    --header-h: 54px;
+  }
+
+  /* Header — collapse connection bar */
+  .hdr-conn { display: none; }
+  .menu-btn { display: flex; }
+
+  /* Sidebar becomes a drawer */
+  aside#sidebar {
+    transform: translateX(-100%);
+    top: 0; bottom: var(--mob-nav-h);
+    z-index: 300;
+    border-right: 1px solid var(--border2);
+    box-shadow: 4px 0 40px rgba(0,0,0,0.6);
+    padding-top: calc(var(--header-h) + 8px);
+  }
+  aside#sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.show { display: block; top: 0; } /* cover full screen on mobile */
+
+  /* Main: no left margin, bottom padding for nav */
+  main {
+    margin-left: 0;
+    padding: 16px;
+    padding-bottom: calc(var(--mob-nav-h) + 80px);
+  }
+
+  /* Stats: 2-col on mobile */
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .stat-val { font-size: 26px; }
+  .stat-val.c-purple { font-size: 13px; }
+
+  /* Page header stack */
+  .page-hdr { flex-direction: column; margin-bottom: 16px; }
+  .page-title { font-size: 20px; }
+  .page-actions { width: 100%; }
+  .page-actions .btn { flex: 1; justify-content: center; }
+
+  /* Form rows: single col on mobile */
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+
+  /* Range rows stack vertically on mobile */
+  .range-row { flex-wrap: wrap; }
+  .range-row .form-input { min-width: 120px; }
+  .range-sep { display: none; }
+
+  /* v6 mode grid: single column on mobile */
+  #v6ModeGrid { grid-template-columns: 1fr !important; }
+
+  /* Access radio: single column on mobile */
+  .access-radio-group { grid-template-columns: 1fr; }
+
+  /* IP range grid: 2 columns on mobile */
+  .ip-range-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Cards: tighter padding */
+  .card { padding: 14px; }
+
+  /* Network cards: stack */
+  .net-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .net-id   { min-width: unset; font-size: 12px; }
+  .net-actions { opacity: 1; width: 100%; }
+  .net-actions .btn { flex: 1; justify-content: center; font-size: 11px; }
+
+  /* Tables: hide less-important cols, show actions */
+  .tbl-hide-mob { display: none !important; }
+
+  /* Bottom nav */
+  #mob-nav { display: flex; }
+
+  /* FAB */
+  #fab { display: flex; }
+
+  /* Hide desktop-only elements */
+  .desk-only { display: none !important; }
+
+  /* Connection bar: dedicated mobile section */
+  #mob-conn-card { display: block; }
+
+  /* Route rows: wrap */
+  .route-row { flex-wrap: wrap; }
+
+  /* Tabs: horizontal scroll */
+  .tab { padding: 9px 11px; font-size: 10px; }
+
+  /* Response box */
+  .resp { max-height: 220px; font-size: 10px; }
+
+  /* Terminal */
+  .terminal-body { font-size: 10px; max-height: 200px; }
+
+  /* Toast: left aligned */
+  #toast-wrap { right: 12px; bottom: calc(var(--mob-nav-h) + 12px); left: 12px; }
+  .toast { max-width: none; font-size: 11px; }
+}
+
+/* ═══════════════════════════════════════════
+   TABLET — 1024px
+═══════════════════════════════════════════ */
+@media (max-width: 1024px) and (min-width: 769px) {
+  :root { --sidebar-w: 190px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .hdr-conn .host-input { max-width: 150px; }
+  .hdr-conn .token-input { max-width: 140px; }
+}
+
+/* Hidden mobile-connection card by default */
+#mob-conn-card { display: none; }
