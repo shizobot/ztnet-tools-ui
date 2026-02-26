@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { ZtIpAssignmentPool, ZtNetwork, ZtRoute } from '../types/zt';
 
 export interface AppState {
+  apiMode: 'proxy' | 'direct';
   host: string;
   token: string;
   nodeId: string;
@@ -19,7 +20,7 @@ export interface AppState {
 }
 
 interface AppActions {
-  setConnectionPrefs: (prefs: Pick<AppState, 'host' | 'token' | 'nodeId'>) => void;
+  setConnectionPrefs: (prefs: Pick<AppState, 'apiMode' | 'host' | 'token' | 'nodeId'>) => void;
   setConnected: (connected: boolean) => void;
   setNetworks: (networks: ZtNetwork[]) => void;
   setSelectedNwid: (selectedNwid: string) => void;
@@ -35,6 +36,7 @@ interface AppActions {
 export type AppStore = AppState & AppActions;
 
 const initialState: AppState = {
+  apiMode: 'proxy',
   host: '',
   token: '',
   nodeId: '',

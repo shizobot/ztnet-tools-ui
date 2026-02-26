@@ -24,10 +24,11 @@ const okJson = (payload: unknown): Response =>
     json: vi.fn().mockResolvedValue(payload),
   }) as unknown as Response;
 
-describe('endpoint switching via store host', () => {
+describe('endpoint switching via direct mode host', () => {
   beforeEach(() => {
     useAppStore.setState((state) => ({
       ...state,
+      apiMode: 'direct',
       host: 'http://controller.local:9993',
       token: 'token-1',
       selectedNwid: 'abcd1234',

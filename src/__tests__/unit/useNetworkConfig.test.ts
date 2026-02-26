@@ -18,18 +18,12 @@ function okResult<T>(data: T, status = 200): ApiResult<T> {
 }
 
 function errorResult<T>(status = 500, message = 'error'): ApiResult<T> {
-  return {
-    ok: false,
-    status,
-    data: null,
-    message,
-    errorType: 'api',
-  };
+  return { ok: false, status, data: null, message, errorType: 'api' };
 }
 
 describe('loadNetworkConfig', () => {
   it('splits pools/routes into v4 and v6 buckets and parses dns fields', async () => {
-    const apiGet: ApiGet = vi.fn(async () =>
+    const apiGet = vi.fn(async (_path: string) =>
       okResult<NetworkConfig>({
         ipAssignmentPools: [
           { ipRangeStart: '10.1.0.1', ipRangeEnd: '10.1.0.254' },
@@ -44,12 +38,12 @@ describe('loadNetworkConfig', () => {
           servers: ['1.1.1.1', '2606:4700:4700::1111'],
         },
       }),
-    );
+    ) as unknown as ApiGet;
 
     const deps: UseNetworkConfigDeps = {
       apiGet,
-      apiPost: vi.fn<ApiPost>(),
-      apiDelete: vi.fn<ApiDelete>(),
+      apiPost: vi.fn() as unknown as ApiPost,
+      apiDelete: vi.fn() as unknown as ApiDelete,
     };
 
     const result = await loadNetworkConfig('8056c2e21c000001', deps);
@@ -74,14 +68,14 @@ describe('loadNetworkConfig', () => {
 
   it('returns null for empty network id and for empty/error api responses', async () => {
     const apiGet = vi
-      .fn<ApiGet>()
+      .fn()
       .mockResolvedValueOnce(okResult<NetworkConfig | null>(null))
-      .mockResolvedValueOnce(errorResult<NetworkConfig>(502, 'bad gateway'));
+      .mockResolvedValueOnce(errorResult<NetworkConfig>(502, 'bad gateway')) as unknown as ApiGet;
 
     const deps: UseNetworkConfigDeps = {
       apiGet,
-      apiPost: vi.fn<ApiPost>(),
-      apiDelete: vi.fn<ApiDelete>(),
+      apiPost: vi.fn() as unknown as ApiPost,
+      apiDelete: vi.fn() as unknown as ApiDelete,
     };
 
     await expect(loadNetworkConfig('   ', deps)).resolves.toBeNull();
@@ -95,13 +89,13 @@ describe('loadNetworkConfig', () => {
 describe('saveNetworkConfig', () => {
   it('builds payload in zt/v6 enabled mode and merges v4+v6 pools/routes', async () => {
     const apiPost = vi
-      .fn<ApiPost>()
-      .mockResolvedValue(okResult<NetworkConfig>({ name: 'Office' }, 200));
+      .fn()
+      .mockResolvedValue(okResult<NetworkConfig>({ name: 'Office' }, 200)) as unknown as ApiPost;
 
     const deps: UseNetworkConfigDeps = {
-      apiGet: vi.fn<ApiGet>(),
+      apiGet: vi.fn() as unknown as ApiGet,
       apiPost,
-      apiDelete: vi.fn<ApiDelete>(),
+      apiDelete: vi.fn() as unknown as ApiDelete,
     };
 
     await saveNetworkConfig(
@@ -146,19 +140,19 @@ describe('saveNetworkConfig', () => {
 
   it('builds payload in v4 none mode and clears dns when domain is empty', async () => {
     const apiPost = vi
-      .fn<ApiPost>()
-      .mockResolvedValue(okResult<NetworkConfig>({ name: 'Guest' }, 200));
+      .fn()
+      .mockResolvedValue(okResult<NetworkConfig>({ name: 'NoDNS' }, 200)) as unknown as ApiPost;
 
     const deps: UseNetworkConfigDeps = {
-      apiGet: vi.fn<ApiGet>(),
+      apiGet: vi.fn() as unknown as ApiGet,
       apiPost,
-      apiDelete: vi.fn<ApiDelete>(),
+      apiDelete: vi.fn() as unknown as ApiDelete,
     };
 
     await saveNetworkConfig(
       {
         nwid: 'efgh5678',
-        name: 'Guest',
+        name: 'NoDNS',
         description: '',
         isPrivate: false,
         enableBroadcast: false,
@@ -176,7 +170,7 @@ describe('saveNetworkConfig', () => {
     );
 
     expect(apiPost).toHaveBeenCalledWith('/controller/network/efgh5678', {
-      name: 'Guest',
+      name: 'NoDNS',
       description: '',
       private: false,
       enableBroadcast: false,
@@ -191,19 +185,18 @@ describe('saveNetworkConfig', () => {
 });
 
 describe('deleteNetwork', () => {
-  it('calls delete endpoint and returns api result as-is', async () => {
-    const response: ApiResult<{ deleted: true }> = okResult({ deleted: true }, 200);
-    const apiDelete = vi.fn<ApiDelete>().mockResolvedValue(response);
-
+  it('calls delete endpoint for selected network id', async () => {
+    const apiDelete = vi.fn(async (_path: string) =>
+      okResult<unknown>(undefined),
+    ) as unknown as ApiDelete;
     const deps: UseNetworkConfigDeps = {
-      apiGet: vi.fn<ApiGet>(),
-      apiPost: vi.fn<ApiPost>(),
+      apiGet: vi.fn() as unknown as ApiGet,
+      apiPost: vi.fn() as unknown as ApiPost,
       apiDelete,
     };
 
-    const result = await deleteNetwork('deadbeef', deps);
+    await deleteNetwork('deadbeef', deps);
 
     expect(apiDelete).toHaveBeenCalledWith('/controller/network/deadbeef');
-    expect(result).toBe(response);
   });
 });

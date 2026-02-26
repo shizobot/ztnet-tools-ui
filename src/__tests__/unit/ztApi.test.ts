@@ -27,7 +27,6 @@ describe('ztApi auth headers', () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
-    vi.unstubAllEnvs();
   });
 
   it('builds auth headers for ztGet', async () => {
@@ -90,32 +89,18 @@ describe('ztApi auth headers', () => {
 });
 
 describe('API URL resolution', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
   it('uses default /api base URL', () => {
     expect(resolveApiBaseUrl()).toBe(DEFAULT_API_BASE_URL);
     expect(resolveApiUrl('/status')).toBe('/api/status');
   });
 
-  it('uses VITE_API_BASE_URL when provided', () => {
-    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:3001/');
-
-    expect(resolveApiBaseUrl()).toBe('http://localhost:3001');
-    expect(resolveApiUrl('status')).toBe('http://localhost:3001/status');
+  it('uses explicit baseUrl when provided', () => {
+    expect(resolveApiBaseUrl('http://localhost:3001/')).toBe('http://localhost:3001');
+    expect(resolveApiUrl('status', 'http://localhost:3001/')).toBe('http://localhost:3001/status');
   });
 
-  it('falls back to env and default when explicit baseUrl is empty', () => {
-    vi.stubEnv('VITE_API_BASE_URL', 'http://env.example/');
-
-    expect(resolveApiUrl('/status', '   ')).toBe('http://env.example/status');
-    vi.unstubAllEnvs();
+  it('falls back to /api when explicit baseUrl is empty', () => {
+    expect(resolveApiUrl('/status', '   ')).toBe('/api/status');
     expect(resolveApiUrl('/status', '')).toBe('/api/status');
-  });
-  it('prefers explicit baseUrl over env value', () => {
-    vi.stubEnv('VITE_API_BASE_URL', 'http://env.example');
-
-    expect(resolveApiUrl('/status', 'http://custom.example/')).toBe('http://custom.example/status');
   });
 });

@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "lint": "node scripts/run-lint.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "node scripts/run-vitest.mjs",
     "test:coverage": "vitest run --coverage",
     "check:styles": "node scripts/check-style-sizes.mjs",
     "check:dead-exports": "node scripts/check-dead-exports.mjs",

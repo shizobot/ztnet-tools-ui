@@ -4,11 +4,20 @@ import type { FormEvent } from 'react';
 import { formatApiError, toApiResult } from '../../api/toApiResult';
 import { ztGet } from '../../api/ztApi';
 import { loadPrefs, useConnection } from '../../hooks/useConnection';
+import { resolveApiClientBaseUrl } from '../../hooks/useApiClient';
 import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
 export function SettingsPanel() {
-  const { host, token, setConnectionPrefs, setConnected, nodeId: currentNodeId } = useAppStore();
+  const {
+    apiMode,
+    host,
+    token,
+    setConnectionPrefs,
+    setConnected,
+    nodeId: currentNodeId,
+  } = useAppStore();
+  const [formApiMode, setFormApiMode] = useState(apiMode);
   const [formHost, setFormHost] = useState(host || 'http://localhost:9993');
   const [formToken, setFormToken] = useState(token);
   const [status, setStatus] = useState('');
@@ -16,7 +25,15 @@ export function SettingsPanel() {
   const { toast } = useToast();
 
   const apiGet = async <T,>(path: string) =>
-    toApiResult(() => ztGet<T>({ path, config: { baseUrl: formHost, token: formToken } }));
+    toApiResult(() =>
+      ztGet<T>({
+        path,
+        config: {
+          baseUrl: resolveApiClientBaseUrl(formApiMode, formHost),
+          token: formToken,
+        },
+      }),
+    );
 
   const { testConnection, clearPrefs } = useConnection({
     apiGet,
@@ -25,8 +42,18 @@ export function SettingsPanel() {
 
   const applySettings = async (event: FormEvent) => {
     event.preventDefault();
-    const next = await testConnection({ host: formHost, token: formToken, persistToken });
-    setConnectionPrefs({ host: next.host, token: next.token, nodeId: next.nodeId });
+    const next = await testConnection({
+      apiMode: formApiMode,
+      host: formHost,
+      token: formToken,
+      persistToken,
+    });
+    setConnectionPrefs({
+      apiMode: next.apiMode,
+      host: next.host,
+      token: next.token,
+      nodeId: next.nodeId,
+    });
     setConnected(next.connected);
 
     if (next.connected) {
@@ -43,10 +70,11 @@ export function SettingsPanel() {
   };
 
   const clearSettings = () => {
+    setFormApiMode('proxy');
     setFormHost('http://localhost:9993');
     setFormToken('');
     clearPrefs();
-    setConnectionPrefs({ host: '', token: '', nodeId: '' });
+    setConnectionPrefs({ apiMode: 'proxy', host: '', token: '', nodeId: '' });
     setConnected(false);
     setStatus('Cleared');
   };
@@ -61,15 +89,33 @@ export function SettingsPanel() {
         </div>
       </div>
       <form className="card" onSubmit={applySettings}>
-        <label className="lbl" htmlFor="settingsHost">
-          API Host URL
+        <label className="lbl" htmlFor="settingsDirectMode">
+          <input
+            id="settingsDirectMode"
+            type="checkbox"
+            checked={formApiMode === 'direct'}
+            onChange={(e) => setFormApiMode(e.target.checked ? 'direct' : 'proxy')}
+          />
+          Use direct backend mode (bypass /api proxy)
         </label>
-        <input
-          id="settingsHost"
-          className="form-input"
-          value={formHost}
-          onChange={(e) => setFormHost(e.target.value)}
-        />
+        <div className="notice small" role="status">
+          {formApiMode === 'proxy'
+            ? 'Proxy mode is active: requests use relative /api and are routed by Vite/reverse proxy.'
+            : 'Direct mode is active: browser calls the controller host below directly (requires CORS on backend).'}
+        </div>
+        {formApiMode === 'direct' && (
+          <>
+            <label className="lbl" htmlFor="settingsHost">
+              Direct API Host URL
+            </label>
+            <input
+              id="settingsHost"
+              className="form-input"
+              value={formHost}
+              onChange={(e) => setFormHost(e.target.value)}
+            />
+          </>
+        )}
         <label className="lbl" htmlFor="settingsToken">
           Auth Token
         </label>

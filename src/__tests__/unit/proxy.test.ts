@@ -12,4 +12,8 @@ describe('proxy target resolution', () => {
       'http://127.0.0.1:4010',
     );
   });
+
+  it('falls back to default when VITE_BACKEND_URL is blank', () => {
+    expect(resolveBackendProxyTarget({ VITE_BACKEND_URL: '   ' })).toBe('http://localhost:3001');
+  });
 });

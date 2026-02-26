@@ -14,9 +14,10 @@ describe('useConnection prefs persistence', () => {
   });
 
   it('restores host without token by default (ephemeral token mode)', () => {
-    savePrefs({ host: 'http://localhost:9993', token: 'secret' });
+    savePrefs({ apiMode: 'direct', host: 'http://localhost:9993', token: 'secret' });
 
     expect(loadPrefs()).toEqual({
+      apiMode: 'direct',
       host: 'http://localhost:9993',
       persistToken: false,
     });
@@ -24,9 +25,15 @@ describe('useConnection prefs persistence', () => {
   });
 
   it('restores host and token when persistToken is enabled', () => {
-    savePrefs({ host: 'http://localhost:9993', token: 'secret', persistToken: true });
+    savePrefs({
+      apiMode: 'direct',
+      host: 'http://localhost:9993',
+      token: 'secret',
+      persistToken: true,
+    });
 
     expect(loadPrefs()).toEqual({
+      apiMode: 'direct',
       host: 'http://localhost:9993',
       token: 'secret',
       persistToken: true,
@@ -34,9 +41,15 @@ describe('useConnection prefs persistence', () => {
   });
 
   it('maps loaded prefs to store-ready connection state', () => {
-    savePrefs({ host: 'http://localhost:9993', token: 'secret', persistToken: true });
+    savePrefs({
+      apiMode: 'direct',
+      host: 'http://localhost:9993',
+      token: 'secret',
+      persistToken: true,
+    });
 
     expect(restoreConnectionStateFromPrefs()).toEqual({
+      apiMode: 'direct',
       host: 'http://localhost:9993',
       token: 'secret',
       connected: false,
@@ -45,10 +58,15 @@ describe('useConnection prefs persistence', () => {
   });
 
   it('clears all persisted keys', () => {
-    savePrefs({ host: 'http://localhost:9993', token: 'secret', persistToken: true });
+    savePrefs({
+      apiMode: 'direct',
+      host: 'http://localhost:9993',
+      token: 'secret',
+      persistToken: true,
+    });
     clearPrefs();
 
-    expect(loadPrefs()).toEqual({ persistToken: false });
+    expect(loadPrefs()).toEqual({ apiMode: 'proxy', persistToken: false });
   });
 });
 
@@ -61,7 +79,7 @@ describe('testConnection', () => {
       .mockResolvedValue({ ok: true, status: 200, data: { address: 'abc123' } });
 
     const result = await testConnection(
-      { host: 'http://localhost:9993', token: 'secret', persistToken: true },
+      { apiMode: 'direct', host: 'http://localhost:9993', token: 'secret', persistToken: true },
       { apiGet, refreshDashboard },
     );
 
@@ -69,6 +87,7 @@ describe('testConnection', () => {
     expect(result.nodeId).toBe('abc123');
     expect(refreshDashboard).toHaveBeenCalledTimes(1);
     expect(loadPrefs()).toEqual({
+      apiMode: 'direct',
       host: 'http://localhost:9993',
       token: 'secret',
       persistToken: true,
