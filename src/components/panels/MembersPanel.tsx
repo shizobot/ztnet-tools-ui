@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ztGet, ztPost } from '../../api/ztApi';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useMembers } from '../../hooks/useMembers';
 import { useAppStore } from '../../store/appStore';
 import { NetworkPicker, useToast } from '../ui';
@@ -8,15 +8,10 @@ import { NetworkPicker, useToast } from '../ui';
 export function MembersPanel() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { host, token, selectedNwid, setSelectedNwid, networks } = useAppStore();
+  const { selectedNwid, setSelectedNwid, networks } = useAppStore();
   const [members, setMembers] = useState<Array<{ memid: string; member: { authorized?: boolean; name?: string } }>>([]);
 
-  const apiGet = async <T,>(path: string) => {
-    try { return { ok: true, status: 200, data: await ztGet<T>({ path, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
-  const apiPost = async <TBody, TData>(path: string, body: TBody) => {
-    try { return { ok: true, status: 200, data: await ztPost<TData, TBody>({ path, body, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
+  const { apiGet, apiPost } = useApiClient();
   const { loadMembers } = useMembers({ apiGet, apiPost });
 
   const refresh = async () => {

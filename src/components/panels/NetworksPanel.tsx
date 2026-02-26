@@ -1,22 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ztGet } from '../../api/ztApi';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useNetworks } from '../../hooks/useNetworks';
 import { useAppStore } from '../../store/appStore';
 
 export function NetworksPanel() {
   const navigate = useNavigate();
-  const { host, token, networks, setNetworks, setSelectedNwid } = useAppStore();
+  const { networks, setNetworks, setSelectedNwid } = useAppStore();
   const [query, setQuery] = useState('');
 
-  const apiGet = async <T,>(path: string) => {
-    try {
-      const data = await ztGet<T>({ path, config: { host, token } });
-      return { ok: true, status: 200, data };
-    } catch {
-      return { ok: false, status: 500, data: null };
-    }
-  };
+  const { apiGet } = useApiClient();
   const { loadNetworksData, filterNetworks } = useNetworks({ apiGet });
 
   const loadNetworks = async () => {

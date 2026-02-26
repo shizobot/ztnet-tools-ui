@@ -13,7 +13,7 @@ const INITIAL_N: NewNetworkState = { pools: [], routes: [], v6: { rfc4193: false
 export function CreateNetworkPanel() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { host, token, nodeId } = useAppStore();
+  const { token, nodeId } = useAppStore();
   const [n, setN] = useState<NewNetworkState>(INITIAL_N);
   const [newNetName, setNewNetName] = useState('');
   const [access, setAccess] = useState<'private' | 'public'>('private');
@@ -28,7 +28,7 @@ export function CreateNetworkPanel() {
     try {
       await ztPost({
         path: `/controller/network/${nodeId}______`,
-        config: { host, token },
+        config: { token },
         body: {
           ipAssignmentPools: n.pools,
           routes: n.routes,

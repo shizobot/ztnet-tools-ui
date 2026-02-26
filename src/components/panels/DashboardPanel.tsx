@@ -1,23 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ztGet } from '../../api/ztApi';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useNetworks } from '../../hooks/useNetworks';
 import { useAppStore } from '../../store/appStore';
 
 export function DashboardPanel() {
   const navigate = useNavigate();
-  const { host, token, nodeId, connected, networks, setNetworks } = useAppStore();
+  const { nodeId, connected, networks, setNetworks } = useAppStore();
   const [authorized, setAuthorized] = useState(0);
   const [pending, setPending] = useState(0);
 
-  const apiGet = async <T,>(path: string) => {
-    try {
-      const data = await ztGet<T>({ path, config: { host, token } });
-      return { ok: true, status: 200, data };
-    } catch {
-      return { ok: false, status: 500, data: null };
-    }
-  };
+  const { apiGet } = useApiClient();
   const { loadNetworksData } = useNetworks({ apiGet });
 
   const refreshDashboard = async () => {

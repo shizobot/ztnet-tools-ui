@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ztGet, ztPost } from '../../api/ztApi';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useMembers } from '../../hooks/useMembers';
 import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
@@ -16,14 +16,7 @@ export function MemberDetailPanel() {
   const [tags, setTags] = useState('');
   const [raw, setRaw] = useState('{}');
 
-  const host = useAppStore((state) => state.host);
-  const token = useAppStore((state) => state.token);
-  const apiGet = async <T,>(path: string) => {
-    try { return { ok: true, status: 200, data: await ztGet<T>({ path, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
-  const apiPost = async <TBody, TData>(path: string, body: TBody) => {
-    try { return { ok: true, status: 200, data: await ztPost<TData, TBody>({ path, body, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
+  const { apiGet, apiPost } = useApiClient();
   const { loadMemberDetail, saveMember } = useMembers({ apiGet, apiPost });
 
   const load = async () => {

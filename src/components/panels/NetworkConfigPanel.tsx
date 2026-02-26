@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ztDelete, ztGet, ztPost } from '../../api/ztApi';
+import { useApiClient } from '../../hooks/useApiClient';
 import { useNetworkConfig } from '../../hooks/useNetworkConfig';
 import { useAppStore } from '../../store/appStore';
 import { DnsServerRow, RouteRow, Toggle, useToast } from '../ui';
@@ -12,22 +12,13 @@ export function NetworkConfigPanel() {
   const { nwid = '' } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { host, token, setNetworkConfig, setSelectedNwid } = useAppStore();
+  const { setNetworkConfig, setSelectedNwid } = useAppStore();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPrivate, setIsPrivate] = useState(true);
   const [v6State, setV6State] = useState<V6State>(INITIAL_V6_STATE);
 
-  const apiGet = async <T,>(path: string) => {
-    try { return { ok: true, status: 200, data: await ztGet<T>({ path, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
-  const apiPost = async <TBody, TData>(path: string, body: TBody) => {
-    try { return { ok: true, status: 200, data: await ztPost<TData, TBody>({ path, body, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
-  const apiDelete = async <T,>(path: string) => {
-    try { return { ok: true, status: 200, data: await ztDelete<T>({ path, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
-  };
-
+  const { apiGet, apiPost, apiDelete } = useApiClient();
   const { loadNetworkConfig, saveNetworkConfig, deleteNetwork } = useNetworkConfig({ apiGet, apiPost, apiDelete });
   const store = useAppStore();
 

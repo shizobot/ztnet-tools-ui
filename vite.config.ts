@@ -1,17 +1,20 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { resolveBackendProxyTarget } from "./src/config/proxy";
 
-export default defineConfig(({ mode }) => {
+export function createViteConfig(mode: string): UserConfig {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react()],
     server: {
       proxy: {
         "/api": {
-          target: env.VITE_BACKEND_URL || "http://localhost:3001",
-          changeOrigin: true
-        }
-      }
-    }
+          target: resolveBackendProxyTarget(env),
+          changeOrigin: true,
+        },
+      },
+    },
   };
-});
+}
+
+export default defineConfig(({ mode }) => createViteConfig(mode));

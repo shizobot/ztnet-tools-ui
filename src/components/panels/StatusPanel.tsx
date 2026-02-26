@@ -5,13 +5,13 @@ import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
 export function StatusPanel() {
-  const { host, token } = useAppStore();
+  const token = useAppStore((state) => state.token);
   const { toast } = useToast();
   const [output, setOutput] = useState('Connect and click Refresh to load status.');
 
   const loadStatus = async () => {
     try {
-      const data = await ztGet<Record<string, unknown>>({ path: '/status', config: { host, token } });
+      const data = await ztGet<Record<string, unknown>>({ path: '/status', config: { token } });
       setOutput(JSON.stringify(data, null, 2));
     } catch (error) {
       setOutput(String(error));

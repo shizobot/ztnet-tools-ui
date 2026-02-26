@@ -16,7 +16,7 @@ export function SettingsPanel() {
 
   const apiGet = async <T,>(path: string) => {
     try {
-      const data = await ztGet<T>({ path, config: { host: formHost, token: formToken } });
+      const data = await ztGet<T>({ path, config: { baseUrl: formHost, token: formToken } });
       return { ok: true, status: 200, data };
     } catch {
       return { ok: false, status: 500, data: null };
