@@ -54,26 +54,26 @@ describe('endpoint switching via store host', () => {
     globalThis.fetch = fetchMock as typeof fetch;
 
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <StatusPanel />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole('button', { name: '↻ Refresh' }));
 
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <NetworksPanel />
       </MemoryRouter>,
     );
 
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <MembersPanel />
       </MemoryRouter>,
     );
 
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <RawApiPanel />
       </MemoryRouter>,
     );

@@ -28,6 +28,11 @@ npm run dev
 
 The Vite dev server starts locally and proxies API calls using `VITE_BACKEND_URL`.
 
+## Dependency version alignment rule
+
+- Keep **runtime and typings major versions aligned**.
+- For React specifically, `react` / `react-dom` and `@types/react` / `@types/react-dom` must stay on the same major version (currently 18.x).
+
 ## Build
 
 ```bash

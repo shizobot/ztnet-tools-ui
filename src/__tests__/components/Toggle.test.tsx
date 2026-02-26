@@ -17,7 +17,7 @@ describe('Toggle', () => {
       />,
     );
 
-    expect(screen.getByText('Auto-assign')).toBeDefined();
+    expect(screen.getAllByText('Auto-assign')).toHaveLength(2);
     expect(screen.getByText('Enable this mode')).toBeDefined();
 
     fireEvent.click(screen.getByRole('checkbox'));
