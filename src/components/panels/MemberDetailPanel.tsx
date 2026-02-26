@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ztGet, ztPost } from '../../api/ztApi';
 import { useMembers } from '../../hooks/useMembers';
+import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
 export function MemberDetailPanel() {
@@ -15,8 +16,8 @@ export function MemberDetailPanel() {
   const [tags, setTags] = useState('');
   const [raw, setRaw] = useState('{}');
 
-  const host = localStorage.getItem('ztnet_host') ?? '';
-  const token = localStorage.getItem('ztnet_token') ?? '';
+  const host = useAppStore((state) => state.host);
+  const token = useAppStore((state) => state.token);
   const apiGet = async <T,>(path: string) => {
     try { return { ok: true, status: 200, data: await ztGet<T>({ path, config: { host, token } }) }; } catch { return { ok: false, status: 500, data: null }; }
   };
