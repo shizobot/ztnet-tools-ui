@@ -1,23 +1,13 @@
-import { useEffect, useState } from 'react';
-
-import { useMembers, type MemberRecord } from '../../hooks/useMembers';
-
 export function MembersPanel() {
-  const { loadMembers } = useMembers();
-  const [members, setMembers] = useState<MemberRecord[]>([]);
-
-  useEffect(() => {
-    void loadMembers().then(setMembers);
-  }, [loadMembers]);
-
   return (
-    <section>
-      <h2>Members</h2>
-      <ul>
-        {members.map((member) => (
-          <li key={member.id}>{member.name ?? member.id}</li>
-        ))}
-      </ul>
+    <section className="panel" id="panel-members">
+      <div className="page-hdr">
+        <div>
+          <div className="page-title">Members</div>
+          <div className="page-sub">GET /controller/network/{'{nwid}'}/member</div>
+        </div>
+      </div>
+      <div className="card">Members table extracted from ztnet-tools-v2.html.</div>
     </section>
   );
 }
