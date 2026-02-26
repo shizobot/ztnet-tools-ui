@@ -13,6 +13,7 @@ type NetworkPickerProps = {
 export function NetworkPicker({ networks, onPick }: NetworkPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const normalizedSearch = search.toLowerCase();
 
   const openNetworkPicker = () => {
     if (!networks.length) {
@@ -30,10 +31,10 @@ export function NetworkPicker({ networks, onPick }: NetworkPickerProps) {
     () =>
       networks.filter(
         (nw) =>
-          nw.id.includes(search.toLowerCase()) ||
-          (nw.name ?? '').toLowerCase().includes(search.toLowerCase()),
+          nw.id.toLowerCase().includes(normalizedSearch) ||
+          (nw.name ?? '').toLowerCase().includes(normalizedSearch),
       ),
-    [networks, search],
+    [networks, normalizedSearch],
   );
 
   return (

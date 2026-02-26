@@ -79,7 +79,8 @@ export function filterNetworks(networks: Network[], query: string): Network[] {
   }
 
   return networks.filter(
-    (network) => network.id.includes(q) || (network.name ?? '').toLowerCase().includes(q),
+    (network) =>
+      network.id.toLowerCase().includes(q) || (network.name ?? '').toLowerCase().includes(q),
   );
 }
 
