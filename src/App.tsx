@@ -9,7 +9,7 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/panels.css';
 
-export default function App(): JSX.Element {
+export default function App() {
   return (
     <>
       <Header />
