@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  DEFAULT_API_BASE_URL,
   LEGACY_AUTH_HEADER,
   ZT_AUTH_HEADER,
+  resolveApiBaseUrl,
+  resolveApiUrl,
   ztDelete,
   ztGet,
   ztPost,
@@ -24,6 +27,7 @@ describe("ztApi auth headers", () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it("builds auth headers for ztGet", async () => {
@@ -34,11 +38,12 @@ describe("ztApi auth headers", () => {
 
     await ztGet<{ ok: boolean }>({
       path: "/status",
-      config: { host: "http://localhost:9993", token: "token-1" },
+      config: { token: "token-1" },
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${DEFAULT_API_BASE_URL}/status`);
     expect(init.method).toBe("GET");
     expect(init.headers).toMatchObject({
       [ZT_AUTH_HEADER]: "token-1",
@@ -54,11 +59,12 @@ describe("ztApi auth headers", () => {
 
     await ztPost<{ created: boolean }, { name: string }>({
       path: "/controller/network/example",
-      config: { host: "http://localhost:9993", token: "token-2" },
+      config: { token: "token-2", baseUrl: "http://localhost:9993" },
       body: { name: "example" },
     });
 
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("http://localhost:9993/controller/network/example");
     expect(init.method).toBe("POST");
     expect(init.headers).toMatchObject({
       [ZT_AUTH_HEADER]: "token-2",
@@ -76,14 +82,40 @@ describe("ztApi auth headers", () => {
 
     await ztDelete<{ removed: boolean }>({
       path: "/controller/network/example",
-      config: { host: "http://localhost:9993", token: "token-3" },
+      config: { token: "token-3" },
     });
 
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe(`${DEFAULT_API_BASE_URL}/controller/network/example`);
     expect(init.method).toBe("DELETE");
     expect(init.headers).toMatchObject({
       [ZT_AUTH_HEADER]: "token-3",
       [LEGACY_AUTH_HEADER]: "bearer token-3",
     });
+  });
+});
+
+describe("API URL resolution", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("uses default /api base URL", () => {
+    expect(resolveApiBaseUrl()).toBe(DEFAULT_API_BASE_URL);
+    expect(resolveApiUrl("/status")).toBe("/api/status");
+  });
+
+  it("uses VITE_API_BASE_URL when provided", () => {
+    vi.stubEnv("VITE_API_BASE_URL", "http://localhost:3001/");
+
+    expect(resolveApiBaseUrl()).toBe("http://localhost:3001");
+    expect(resolveApiUrl("status")).toBe("http://localhost:3001/status");
+  });
+
+  it("prefers explicit baseUrl over env value", () => {
+    vi.stubEnv("VITE_API_BASE_URL", "http://env.example");
+
+    expect(resolveApiUrl("/status", "http://custom.example/"))
+      .toBe("http://custom.example/status");
   });
 });

@@ -2,6 +2,7 @@ import type { ApiErrorBody } from "../types/zt";
 
 export const ZT_AUTH_HEADER = "X-ZT1-AUTH" as const;
 export const LEGACY_AUTH_HEADER = "Authorization" as const;
+export const DEFAULT_API_BASE_URL = "/api" as const;
 
 export type ZtAuthHeaders = {
   [ZT_AUTH_HEADER]: string;
@@ -21,8 +22,8 @@ export class ZtApiError extends Error {
 }
 
 export interface ZtApiConfig {
-  host: string;
   token: string;
+  baseUrl?: string;
 }
 
 export function buildZtAuthHeaders(token: string): ZtAuthHeaders {
@@ -30,6 +31,25 @@ export function buildZtAuthHeaders(token: string): ZtAuthHeaders {
     [ZT_AUTH_HEADER]: token,
     [LEGACY_AUTH_HEADER]: `bearer ${token}`,
   };
+}
+
+export function resolveApiBaseUrl(baseUrl?: string): string {
+  const explicit = baseUrl?.trim();
+  if (explicit) {
+    return explicit.replace(/\/$/, "");
+  }
+
+  const envBase = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (envBase) {
+    return envBase.replace(/\/$/, "");
+  }
+
+  return DEFAULT_API_BASE_URL;
+}
+
+export function resolveApiUrl(path: string, baseUrl?: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${resolveApiBaseUrl(baseUrl)}${normalizedPath}`;
 }
 
 interface RequestOptions<TBody> {
@@ -54,8 +74,7 @@ async function ztRequest<TResponse, TBody = undefined>(
   options: RequestOptions<TBody>,
 ): Promise<TResponse> {
   const { path, config, body } = options;
-  const base = config.host.replace(/\/$/, "");
-  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = resolveApiUrl(path, config.baseUrl);
 
   const response = await fetch(url, {
     method,

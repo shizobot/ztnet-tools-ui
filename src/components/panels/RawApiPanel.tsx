@@ -5,7 +5,7 @@ import { copyText } from '../../lib/clipboard';
 import { useToast } from '../ui';
 
 export function RawApiPanel() {
-  const { host, token } = useAppStore();
+  const token = useAppStore((state) => state.token);
   const { toast } = useToast();
   const [method, setMethod] = useState<'GET' | 'POST' | 'DELETE'>('GET');
   const [path, setPath] = useState('/status');
@@ -16,9 +16,9 @@ export function RawApiPanel() {
     event.preventDefault();
     try {
       let data: unknown;
-      if (method === 'GET') data = await ztGet({ path, config: { host, token } });
-      else if (method === 'DELETE') data = await ztDelete({ path, config: { host, token } });
-      else data = await ztPost({ path, config: { host, token }, body: JSON.parse(body) as Record<string, unknown> });
+      if (method === 'GET') data = await ztGet({ path, config: { token } });
+      else if (method === 'DELETE') data = await ztDelete({ path, config: { token } });
+      else data = await ztPost({ path, config: { token }, body: JSON.parse(body) as Record<string, unknown> });
       setOutput(JSON.stringify(data, null, 2));
     } catch (error) {
       setOutput(String(error));
