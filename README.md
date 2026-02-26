@@ -1,7 +1,7 @@
 # ztnet-tools-ui
 
-[![CI](https://github.com/yourorg/ztnet-tools-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/ztnet-tools-ui/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/yourorg/ztnet-tools-ui/branch/main/graph/badge.svg)](https://codecov.io/gh/yourorg/ztnet-tools-ui)
+[![CI](https://github.com/shizobot/ztnet-tools-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/shizobot/ztnet-tools-ui/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/shizobot/ztnet-tools-ui/branch/main/graph/badge.svg)](https://codecov.io/gh/shizobot/ztnet-tools-ui)
 
 Standalone frontend UI for managing ZeroTier controller data.
 
