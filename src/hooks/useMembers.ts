@@ -70,15 +70,41 @@ export async function loadMemberDetail(
   };
 }
 
-const parseTags = (value: string): [number, number][] =>
-  value
+export type ParseTagsResult = {
+  tags: [number, number][];
+  hasInvalid: boolean;
+};
+
+export const parseTags = (value: string): ParseTagsResult => {
+  const entries = value
     .trim()
     .split(/\s+/)
-    .filter(Boolean)
-    .map((entry): [number, number] => {
-      const [id, rawVal] = entry.split('=');
-      return [Number.parseInt(id, 10), Number.parseInt(rawVal || '0', 10)];
-    });
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  return entries.reduce<ParseTagsResult>(
+    (acc, entry) => {
+      const [idText = '', rawValue = ''] = entry.split('=', 2).map((part) => part.trim());
+
+      if (!idText || !rawValue) {
+        return { ...acc, hasInvalid: true };
+      }
+
+      if (!/^-?\d+$/.test(idText) || !/^-?\d+$/.test(rawValue)) {
+        return { ...acc, hasInvalid: true };
+      }
+
+      const id = Number.parseInt(idText, 10);
+      const valueNum = Number.parseInt(rawValue, 10);
+
+      return {
+        tags: [...acc.tags, [id, valueNum]],
+        hasInvalid: acc.hasInvalid,
+      };
+    },
+    { tags: [], hasInvalid: false },
+  );
+};
 
 const parseCapabilities = (value: string): number[] =>
   value
@@ -98,7 +124,7 @@ export async function saveMember(
     activeBridge: input.activeBridge,
     ipAssignments: input.ipAssignments,
     capabilities: parseCapabilities(input.capabilitiesText),
-    tags: parseTags(input.tagsText),
+    tags: parseTags(input.tagsText).tags,
   };
 
   return deps.apiPost<typeof body, Member>(

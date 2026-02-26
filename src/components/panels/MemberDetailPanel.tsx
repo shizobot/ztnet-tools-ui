@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { formatApiError } from '../../api/toApiResult';
 import { useApiClient } from '../../hooks/useApiClient';
-import { useMembers } from '../../hooks/useMembers';
+import { parseTags, useMembers } from '../../hooks/useMembers';
 import { useToast } from '../ui';
 
 export function MemberDetailPanel() {
@@ -15,6 +15,7 @@ export function MemberDetailPanel() {
   const [caps, setCaps] = useState('');
   const [tags, setTags] = useState('');
   const [raw, setRaw] = useState('{}');
+  const [tagsValidation, setTagsValidation] = useState('');
 
   const { apiGet, apiPost } = useApiClient();
   const { loadMemberDetail, saveMember } = useMembers({ apiGet, apiPost });
@@ -80,11 +81,30 @@ export function MemberDetailPanel() {
         <label htmlFor="memberCapabilities">Capabilities</label>
         <input id="memberCapabilities" value={caps} onChange={(e) => setCaps(e.target.value)} />
         <label htmlFor="memberTags">Tags</label>
-        <input id="memberTags" value={tags} onChange={(e) => setTags(e.target.value)} />
+        <input
+          id="memberTags"
+          value={tags}
+          onChange={(e) => {
+            setTags(e.target.value);
+            if (tagsValidation) {
+              setTagsValidation('');
+            }
+          }}
+        />
+        {tagsValidation ? <div className="notice notice-warn">{tagsValidation}</div> : null}
         <button
           className="btn btn-primary"
           type="button"
           onClick={async () => {
+            const parsedTags = parseTags(tags);
+            if (parsedTags.hasInvalid) {
+              const msg = 'Invalid tags format. Use numeric id=value pairs separated by spaces.';
+              setTagsValidation(msg);
+              toast(msg, 'err');
+              return;
+            }
+
+            setTagsValidation('');
             const res = await saveMember({
               nwid,
               memid: id,
