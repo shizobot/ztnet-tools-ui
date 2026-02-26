@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 
 import { formatApiError, toApiResult } from '../../api/toApiResult';
 import { ztGet } from '../../api/ztApi';
-import { useConnection } from '../../hooks/useConnection';
+import { loadPrefs, useConnection } from '../../hooks/useConnection';
 import { useAppStore } from '../../store/appStore';
 import { useToast } from '../ui';
 
@@ -12,7 +12,7 @@ export function SettingsPanel() {
   const [formHost, setFormHost] = useState(host || 'http://localhost:9993');
   const [formToken, setFormToken] = useState(token);
   const [status, setStatus] = useState('');
-  const [persistToken, setPersistToken] = useState(false);
+  const [persistToken, setPersistToken] = useState(() => loadPrefs().persistToken ?? false);
   const { toast } = useToast();
 
   const apiGet = async <T,>(path: string) =>
