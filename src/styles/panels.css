@@ -1,0 +1,51 @@
+/* Extracted panel-specific styles and animations */
+
+
+/* ═══════════════════════════════════════════
+   PANELS
+═══════════════════════════════════════════ */
+.panel { display: none; }
+.panel.active {
+  display: block;
+  animation: panelIn 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════ */
+.page-hdr {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px; font-weight: 700;
+  color: #fff; letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.page-sub {
+  font-size: 10px; color: #6a9ab8;
+  margin-top: 4px; letter-spacing: 0.05em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+
+/* Panel config sections */
+.cfg-section { margin-bottom: 6px; }
+.cfg-section-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: #6a9ab8;
+  padding: 0 2px 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.cfg-section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
