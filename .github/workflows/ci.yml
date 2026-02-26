@@ -22,6 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run check:styles
       - run: npm run check:dead-exports
+      - run: npm run check:deps-align
       - run: npx eslint . --max-warnings 0
       - run: npx prettier --check .
 

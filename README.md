@@ -31,7 +31,8 @@ The Vite dev server starts locally and proxies API calls using `VITE_BACKEND_URL
 ## Dependency version alignment rule
 
 - Keep **runtime and typings major versions aligned**.
-- For React specifically, `react` / `react-dom` and `@types/react` / `@types/react-dom` must stay on the same major version (currently 18.x).
+- Current aligned React line in this repository: `react@^18.3.1`, `react-dom@^18.3.1`, `@types/react@^18.3.28`, `@types/react-dom@^18.3.7`.
+- CI enforces this through `npm run check:deps-align` (script: `scripts/check-react-types-alignment.mjs`).
 
 ## Build
 
