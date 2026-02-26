@@ -59,35 +59,35 @@ export function NetworkConfigPanel() {
     (updater: (pools: typeof store.pools) => typeof store.pools) => {
       updateConfig({ pools: updater(store.pools) });
     },
-    [store.pools, updateConfig],
+    [store, updateConfig],
   );
 
   const updateRoutes = useCallback(
     (updater: (routes: typeof store.routes) => typeof store.routes) => {
       updateConfig({ routes: updater(store.routes) });
     },
-    [store.routes, updateConfig],
+    [store, updateConfig],
   );
 
   const updateDnsServers = useCallback(
     (updater: (dnsServers: typeof store.dnsServers) => typeof store.dnsServers) => {
       updateConfig({ dnsServers: updater(store.dnsServers) });
     },
-    [store.dnsServers, updateConfig],
+    [store, updateConfig],
   );
 
   const updateV6Pools = useCallback(
     (updater: (v6pools: typeof store.v6pools) => typeof store.v6pools) => {
       updateConfig({ v6pools: updater(store.v6pools) });
     },
-    [store.v6pools, updateConfig],
+    [store, updateConfig],
   );
 
   const updateV6Routes = useCallback(
     (updater: (v6routes: typeof store.v6routes) => typeof store.v6routes) => {
       updateConfig({ v6routes: updater(store.v6routes) });
     },
-    [store.v6routes, updateConfig],
+    [store, updateConfig],
   );
 
   const load = useCallback(async () => {
@@ -108,7 +108,13 @@ export function NetworkConfigPanel() {
     setIsPrivate(cfg.raw.private !== false);
     setEnableBroadcast(cfg.raw.enableBroadcast === true);
     setMulticastLimit(cfg.raw.multicastLimit ?? 32);
-    setV4Mode(cfg.raw.v4AssignMode === 'none' ? 'none' : cfg.raw.v4AssignMode?.zt === false ? 'none' : 'zt');
+    const v4AssignMode = cfg.raw.v4AssignMode;
+    const resolvedV4Mode =
+      v4AssignMode === 'none' ||
+      (typeof v4AssignMode === 'object' && v4AssignMode !== null && v4AssignMode.zt === false)
+        ? 'none'
+        : 'zt';
+    setV4Mode(resolvedV4Mode);
     setDnsDomain(cfg.dnsDomain);
     setV6State({ ...INITIAL_V6_STATE, ...(cfg.raw.v6AssignMode || {}) });
   }, [loadNetworkConfig, nwid, setNetworkConfig, setSelectedNwid]);
@@ -145,7 +151,11 @@ export function NetworkConfigPanel() {
           onChange={(e) => setMulticastLimit(Number(e.target.value) || 0)}
         />
         <label htmlFor="v4Mode">IPv4 assignment mode</label>
-        <select id="v4Mode" value={v4Mode} onChange={(e) => setV4Mode(e.target.value as 'zt' | 'none')}>
+        <select
+          id="v4Mode"
+          value={v4Mode}
+          onChange={(e) => setV4Mode(e.target.value as 'zt' | 'none')}
+        >
           <option value="zt">ZeroTier managed</option>
           <option value="none">None</option>
         </select>
@@ -184,7 +194,11 @@ export function NetworkConfigPanel() {
                 )
               }
             />
-            <button type="button" className="btn btn-danger btn-sm" onClick={() => updatePools((pools) => pools.filter((_, idx) => idx !== i))}>
+            <button
+              type="button"
+              className="btn btn-danger btn-sm"
+              onClick={() => updatePools((pools) => pools.filter((_, idx) => idx !== i))}
+            >
               Remove
             </button>
           </div>
@@ -257,7 +271,11 @@ export function NetworkConfigPanel() {
                 )
               }
             />
-            <button type="button" className="btn btn-danger btn-sm" onClick={() => updateV6Pools((v6pools) => v6pools.filter((_, idx) => idx !== i))}>
+            <button
+              type="button"
+              className="btn btn-danger btn-sm"
+              onClick={() => updateV6Pools((v6pools) => v6pools.filter((_, idx) => idx !== i))}
+            >
               Remove
             </button>
           </div>
@@ -301,7 +319,9 @@ export function NetworkConfigPanel() {
                 dnsServers.map((item, idx) => (idx === i ? value : item)),
               )
             }
-            onRemove={() => updateDnsServers((dnsServers) => dnsServers.filter((_, idx) => idx !== i))}
+            onRemove={() =>
+              updateDnsServers((dnsServers) => dnsServers.filter((_, idx) => idx !== i))
+            }
           />
         ))}
         <button

@@ -37,10 +37,7 @@ export type LoadMembersResult = {
   error: ApiResult<unknown> | null;
 };
 
-export async function loadMembers(
-  nwid: string,
-  deps: UseMembersDeps,
-): Promise<LoadMembersResult> {
+export async function loadMembers(nwid: string, deps: UseMembersDeps): Promise<LoadMembersResult> {
   const res = await deps.apiGet<Record<string, Member>>(`/controller/network/${nwid}/member`);
   if (!res?.ok) {
     return { rows: [], error: res };

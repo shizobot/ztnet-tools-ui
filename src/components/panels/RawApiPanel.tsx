@@ -29,10 +29,7 @@ export function RawApiPanel() {
         return;
       }
 
-      result = await apiPost<Record<string, unknown>, unknown>(
-        path,
-        parsedBody,
-      );
+      result = await apiPost<Record<string, unknown>, unknown>(path, parsedBody);
     }
 
     if (result.ok) {

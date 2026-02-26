@@ -77,7 +77,9 @@ export function NetworksPanel() {
         ) : filtered.length === 0 && !isLoading ? (
           <EmptyState
             title={query ? 'No networks match your filter' : 'No networks found'}
-            description={query ? 'Try changing your filter criteria' : 'Create your first ZeroTier network'}
+            description={
+              query ? 'Try changing your filter criteria' : 'Create your first ZeroTier network'
+            }
             icon={query ? '⬡' : '⬢'}
           />
         ) : (
