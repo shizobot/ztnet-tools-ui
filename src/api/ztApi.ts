@@ -1,4 +1,12 @@
-import type { ApiErrorBody } from '../types/zt';
+import type { ApiErrorBody } from "../types/zt";
+
+export const ZT_AUTH_HEADER = "X-ZT1-AUTH" as const;
+export const LEGACY_AUTH_HEADER = "Authorization" as const;
+
+export type ZtAuthHeaders = {
+  [ZT_AUTH_HEADER]: string;
+  [LEGACY_AUTH_HEADER]: string;
+};
 
 export class ZtApiError extends Error {
   readonly status: number;
@@ -6,7 +14,7 @@ export class ZtApiError extends Error {
 
   constructor(message: string, status: number, payload?: ApiErrorBody) {
     super(message);
-    this.name = 'ZtApiError';
+    this.name = "ZtApiError";
     this.status = status;
     this.payload = payload;
   }
@@ -17,13 +25,22 @@ export interface ZtApiConfig {
   token: string;
 }
 
+export function buildZtAuthHeaders(token: string): ZtAuthHeaders {
+  return {
+    [ZT_AUTH_HEADER]: token,
+    [LEGACY_AUTH_HEADER]: `bearer ${token}`,
+  };
+}
+
 interface RequestOptions<TBody> {
   path: string;
   config: ZtApiConfig;
   body?: TBody;
 }
 
-async function parseErrorPayload(response: Response): Promise<ApiErrorBody | undefined> {
+async function parseErrorPayload(
+  response: Response,
+): Promise<ApiErrorBody | undefined> {
   try {
     const data = (await response.json()) as ApiErrorBody;
     return data;
@@ -33,26 +50,31 @@ async function parseErrorPayload(response: Response): Promise<ApiErrorBody | und
 }
 
 async function ztRequest<TResponse, TBody = undefined>(
-  method: 'GET' | 'POST' | 'DELETE',
+  method: "GET" | "POST" | "DELETE",
   options: RequestOptions<TBody>,
 ): Promise<TResponse> {
   const { path, config, body } = options;
-  const base = config.host.replace(/\/$/, '');
-  const url = `${base}${path.startsWith('/') ? path : `/${path}`}`;
+  const base = config.host.replace(/\/$/, "");
+  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
   const response = await fetch(url, {
     method,
     headers: {
-      Authorization: `bearer ${config.token}`,
-      'Content-Type': 'application/json',
+      ...buildZtAuthHeaders(config.token),
+      "Content-Type": "application/json",
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorPayload = await parseErrorPayload(response);
-    const message = errorPayload?.message ?? errorPayload?.error ?? response.statusText;
-    throw new ZtApiError(message || 'Unknown API error', response.status, errorPayload);
+    const message =
+      errorPayload?.message ?? errorPayload?.error ?? response.statusText;
+    throw new ZtApiError(
+      message || "Unknown API error",
+      response.status,
+      errorPayload,
+    );
   }
 
   if (response.status === 204) {
@@ -62,14 +84,20 @@ async function ztRequest<TResponse, TBody = undefined>(
   return (await response.json()) as TResponse;
 }
 
-export function ztGet<TResponse>(options: RequestOptions<undefined>): Promise<TResponse> {
-  return ztRequest<TResponse, undefined>('GET', options);
+export function ztGet<TResponse>(
+  options: RequestOptions<undefined>,
+): Promise<TResponse> {
+  return ztRequest<TResponse, undefined>("GET", options);
 }
 
-export function ztPost<TResponse, TBody>(options: RequestOptions<TBody>): Promise<TResponse> {
-  return ztRequest<TResponse, TBody>('POST', options);
+export function ztPost<TResponse, TBody>(
+  options: RequestOptions<TBody>,
+): Promise<TResponse> {
+  return ztRequest<TResponse, TBody>("POST", options);
 }
 
-export function ztDelete<TResponse>(options: RequestOptions<undefined>): Promise<TResponse> {
-  return ztRequest<TResponse, undefined>('DELETE', options);
+export function ztDelete<TResponse>(
+  options: RequestOptions<undefined>,
+): Promise<TResponse> {
+  return ztRequest<TResponse, undefined>("DELETE", options);
 }
