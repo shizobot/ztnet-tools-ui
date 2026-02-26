@@ -1,4 +1,4 @@
-export type ApiResult<T> = { ok: boolean; status: number; data: T | null } | null;
+import type { ApiResult } from '../api/toApiResult';
 
 export type NetworkConfig = {
   name?: string;
