@@ -12,5 +12,6 @@ const run = (command, args) => {
 
 run('npm', ['run', 'check:styles']);
 run('npm', ['run', 'check:dead-exports']);
+run('npm', ['run', 'check:deps-align']);
 run('eslint', [...lintTargets, '--max-warnings', '0']);
 run('prettier', ['--check', ...lintTargets]);
